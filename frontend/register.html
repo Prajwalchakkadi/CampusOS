@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusOS | Student Registration</title>
+  <link rel="stylesheet" href="register.css">
+</head>
+<body>
+
+<header class="header">
+  <h1>CampusOS</h1>
+  <p>Student Registration Portal</p>
+</header>
+
+<main class="container">
+  <div class="heading">
+    <h2>Student Registration</h2>
+    <p>Enter your details carefully</p>
+  </div>
+
+  <form id="registrationForm">
+
+    <h3>1. Personal Information</h3>
+
+    <label>Student Full Name *</label>
+    <input type="text" name="studentName" required>
+
+    <label>Father's Name *</label>
+    <input type="text" name="fatherName" required>
+
+    <label>Mother's Name *</label>
+    <input type="text" name="motherName" required>
+
+    <label>Date of Birth *</label>
+    <input type="date" name="dob" required>
+
+    <label>Gender *</label>
+    <select name="gender" required>
+      <option value="">Select gender</option>
+      <option>Male</option>
+      <option>Female</option>
+      <option>Other</option>
+      <option>Prefer not to say</option>
+    </select>
+
+    <label>Caste / Community (Optional)</label>
+    <input type="text" name="caste">
+
+    <h3>2. Academic and Contact Details</h3>
+
+    <label>Registration Number *</label>
+    <input type="text" name="registrationNumber" required>
+
+    <label>Student Email ID *</label>
+    <input type="email" name="email" required>
+
+    <label>Student Phone Number *</label>
+    <input type="tel" name="phone"
+           pattern="[0-9]{10}" maxlength="10" required>
+
+    <label>Parent's Email ID *</label>
+    <input type="email" name="parentEmail" required>
+
+    <h3>3. Photograph and Signature</h3>
+
+    <label>Student Photo *</label>
+    <input type="file" name="studentPhoto"
+           accept="image/*" required>
+
+    <label>Student Signature *</label>
+    <input type="file" name="studentSignature"
+           accept="image/*" required>
+
+    <label>Mother's Photo *</label>
+    <input type="file" name="motherPhoto"
+           accept="image/*" required>
+
+    <label>Father's Photo *</label>
+    <input type="file" name="fatherPhoto"
+           accept="image/*" required>
+
+    <h3>4. Residential Information</h3>
+
+    <label>Native Village Name *</label>
+    <input type="text" name="village" required>
+
+    <label>Accommodation Type *</label>
+    <select name="accommodation" required>
+      <option value="">Select accommodation</option>
+      <option value="PG">PG</option>
+      <option value="Hostel">Hostel</option>
+      <option value="Localite">Localite / Day Scholar</option>
+    </select>
+
+    <div class="notice">
+      Your information will be submitted for college
+      administrator verification. Login credentials
+      will be issued after approval.
+    </div>
+
+    <button type="submit">Submit Registration</button>
+
+    <p id="message" role="status"></p>
+  </form>
+
+  <p class="login-link">
+    Already registered?
+    <a href="index.html">Go to Login</a>
+  </p>
+</main>
+
+<script src="register.js"></script>
+</body>
+</html>
+
