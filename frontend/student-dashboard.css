@@ -1,0 +1,197 @@
+/* CAMPUSOS STUDENT DASHBOARD */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #0b1120;
+    color: #ffffff;
+}
+
+/* HEADER */
+
+.header {
+    background: #111c30;
+    padding: 20px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #26344d;
+}
+
+.header h2 {
+    color: #a3ff12;
+    font-size: 26px;
+}
+
+button {
+    background: #a3ff12;
+    color: #101820;
+    border: none;
+    padding: 11px 22px;
+    border-radius: 7px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #8bd900;
+}
+
+/* MAIN CONTAINER */
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 35px auto;
+}
+
+.container > h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.container > p {
+    color: #aab6c8;
+    margin-bottom: 25px;
+}
+
+/* STUDENT PROFILE */
+
+.profile,
+.attendance-section {
+    background: #152238;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    border: 1px solid #263b58;
+}
+
+.profile h2,
+.attendance-section h2 {
+    color: #a3ff12;
+    margin-bottom: 20px;
+}
+
+.profile p {
+    margin: 12px 0;
+    color: #d6deeb;
+}
+
+#status {
+    color: #a3ff12;
+    margin-top: 20px;
+}
+
+/* FEATURE CARDS */
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.feature-card {
+    background: #152238;
+    padding: 25px;
+    text-align: center;
+    border-radius: 10px;
+    border: 1px solid #263b58;
+    font-size: 17px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.feature-card:hover {
+    border-color: #a3ff12;
+    transform: translateY(-4px);
+    color: #a3ff12;
+}
+
+/* ATTENDANCE */
+
+.attendance-summary {
+    background: #1c2c45;
+    padding: 22px;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.attendance-summary h3 {
+    color: #a3ff12;
+    margin-bottom: 12px;
+}
+
+#attendancePercentage {
+    color: #a3ff12;
+    font-size: 38px;
+    margin: 12px 0;
+}
+
+.attendance-summary p {
+    margin: 8px 0;
+    color: #d6deeb;
+}
+
+.attendance-section h3 {
+    margin: 25px 0 12px;
+}
+
+/* TABLES */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 25px;
+    background: #111c30;
+}
+
+th {
+    background: #263b58;
+    color: #a3ff12;
+}
+
+th, td {
+    padding: 13px;
+    text-align: left;
+    border: 1px solid #34445e;
+}
+
+td {
+    color: #e1e8f0;
+}
+
+/* MOBILE RESPONSIVE */
+
+@media (max-width: 700px) {
+    .features {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .container {
+        width: 94%;
+    }
+
+    .header h2 {
+        font-size: 21px;
+    }
+
+    table {
+        font-size: 12px;
+    }
+
+    th, td {
+        padding: 8px;
+    }
+}
+
+@media (max-width: 450px) {
+    .features {
+        grid-template-columns: 1fr;
+    }
+}
