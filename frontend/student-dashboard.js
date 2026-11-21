@@ -1,174 +1,182 @@
+
+const API_URL = "http://127.0.0.1:5000";
+
 const token = sessionStorage.getItem("token");
+const email = sessionStorage.getItem("userEmail");
+const role = sessionStorage.getItem("userRole");
 
-const statusMessage = document.getElementById("status");
+const statusElement = document.getElementById("status");
+const video = document.getElementById("faceVideo");
+const startCameraBtn = document.getElementById("startCameraBtn");
+const stopCameraBtn = document.getElementById("stopCameraBtn");
+const consentCheckbox = document.getElementById("faceConsent");
+const enrollBtn = document.getElementById("enrollFaceBtn");
+const faceMessage = document.getElementById("faceMessage");
 
-// Check authentication
-if (!token) {
-    alert("Please login first!");
-    window.location.href = "index.html";
+let cameraStream = null;
+
+if (!token || role !== "Student") {
+  alert("Please log in using your student account.");
+  window.location.href = "index.html";
 }
 
-// Load Student Dashboard
-async function loadStudentDashboard() {
-    try {
-        const response = await fetch(
-            "http://localhost:5000/api/student/dashboard",
-            {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                }
-            }
-        );
+document.getElementById("studentEmail").textContent = email || "Not available";
+document.getElementById("studentRole").textContent = role || "Student";
 
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || "Dashboard loading failed");
-        }
-
-        document.getElementById("studentId").textContent =
-            data.student.id;
-
-        document.getElementById("studentEmail").textContent =
-            data.student.email;
-
-        document.getElementById("studentRole").textContent =
-            data.student.role;
-
-        statusMessage.textContent =
-            "Connected successfully to CampusOS!";
-
-        statusMessage.style.color = "green";
-
-    } catch (error) {
-        statusMessage.textContent = error.message;
-        statusMessage.style.color = "red";
-        console.error(error);
-    }
-}
-
-// Load Student Attendance
-async function loadStudentAttendance() {
-    try {
-        const response = await fetch(
-            "http://localhost:5000/api/student/attendance",
-            {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                }
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || "Attendance loading failed");
-        }
-
-        // Display attendance summary
-        document.getElementById("attendancePercentage").textContent =
-            data.summary.attendancePercentage + "%";
-
-        document.getElementById("totalClasses").textContent =
-            data.summary.totalClasses;
-
-        document.getElementById("presentClasses").textContent =
-            data.summary.presentClasses;
-
-        document.getElementById("absentClasses").textContent =
-            data.summary.totalClasses - data.summary.presentClasses;
-
-        // Display attendance records
-        const recordsContainer =
-            document.getElementById("attendanceRecords");
-
-        recordsContainer.innerHTML = "";
-
-        data.records.forEach(record => {
-            const row = document.createElement("tr");
-
-            [
-                record.subject,
-                record.classType,
-                record.date,
-                record.status
-            ].forEach(value => {
-                const cell = document.createElement("td");
-                cell.textContent = value;
-                row.appendChild(cell);
-            });
-
-            recordsContainer.appendChild(row);
-        });
-
-        // Calculate subject-wise attendance
-        const subjectSummary = {};
-
-        data.records.forEach(record => {
-            if (!subjectSummary[record.subject]) {
-                subjectSummary[record.subject] = {
-                    total: 0,
-                    present: 0
-                };
-            }
-
-            subjectSummary[record.subject].total++;
-
-            if (record.status === "Present") {
-                subjectSummary[record.subject].present++;
-            }
-        });
-
-        const subjectContainer =
-            document.getElementById("subjectAttendance");
-
-        subjectContainer.innerHTML = "";
-
-        Object.entries(subjectSummary).forEach(([subject, details]) => {
-            const percentage = Math.round(
-                (details.present / details.total) * 100
-            );
-
-            const row = document.createElement("tr");
-
-            [subject, `${details.present}/${details.total}`, `${percentage}%`]
-                .forEach(value => {
-                    const cell = document.createElement("td");
-                    cell.textContent = value;
-                    row.appendChild(cell);
-                });
-
-            subjectContainer.appendChild(row);
-        });
-
-        console.log("Attendance loaded successfully!");
-
-    } catch (error) {
-        console.error("Attendance Error:", error);
-
-        const recordsContainer =
-            document.getElementById("attendanceRecords");
-
-        if (recordsContainer) {
-            recordsContainer.textContent = error.message;
-        }
-    }
-}
-
-// Logout
 document.getElementById("logoutBtn").addEventListener("click", () => {
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("user");
-
-    window.location.href = "index.html";
+  stopCamera();
+  sessionStorage.clear();
+  window.location.href = "index.html";
 });
 
-// Load dashboard and attendance
-if (token) {
-    loadStudentDashboard();
-    loadStudentAttendance();
+async function apiRequest(path, options = {}) {
+  const response = await fetch(`${API_URL}${path}`, {
+    ...options,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      ...(options.headers || {})
+    }
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Request failed.");
+  }
+
+  return data;
 }
+
+async function loadDashboard() {
+  try {
+    statusElement.textContent = "Loading student information...";
+
+    const data = await apiRequest("/api/student/dashboard");
+
+    document.getElementById("studentId").textContent =
+      data.student?.id || data.student?.uid || "Available";
+
+    statusElement.textContent = "Student dashboard connected.";
+
+    await loadFaceStatus();
+    await loadAttendance();
+
+  } catch (error) {
+    console.error(error);
+    statusElement.textContent = error.message;
+  }
+}
+
+async function loadFaceStatus() {
+  try {
+    const data = await apiRequest("/api/student/face-enrollment");
+
+    if (data.enrolled) {
+      faceMessage.textContent = "Face enrollment is verified.";
+    } else if (data.status === "pending_provider") {
+      faceMessage.textContent =
+        "Consent received. Secure face verification setup is pending.";
+    } else {
+      faceMessage.textContent =
+        "Face enrollment has not been completed.";
+    }
+  } catch (error) {
+    faceMessage.textContent = error.message;
+  }
+}
+
+async function loadAttendance() {
+  try {
+    const data = await apiRequest("/api/student/attendance");
+
+    const summary = data.summary || {};
+
+    document.getElementById("attendancePercentage").textContent =
+      `${summary.attendancePercentage ?? 0}%`;
+
+    document.getElementById("totalClasses").textContent =
+      summary.totalClasses ?? 0;
+
+    document.getElementById("presentClasses").textContent =
+      summary.presentClasses ?? 0;
+
+    document.getElementById("absentClasses").textContent =
+      summary.absentClasses ?? 0;
+
+  } catch (error) {
+    console.error("Attendance error:", error);
+  }
+}
+
+startCameraBtn.addEventListener("click", async () => {
+  try {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      throw new Error("Camera is unavailable. Open CampusOS through localhost or HTTPS.");
+    }
+
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user" },
+      audio: false
+    });
+
+    video.srcObject = cameraStream;
+    await video.play();
+
+    faceMessage.textContent =
+      "Camera is working. This is only a preview, not face verification.";
+
+  } catch (error) {
+    faceMessage.textContent = "Camera error: " + error.message;
+  }
+});
+
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+
+  if (video) {
+    video.srcObject = null;
+  }
+}
+
+stopCameraBtn.addEventListener("click", stopCamera);
+
+enrollBtn.addEventListener("click", async () => {
+  if (!consentCheckbox.checked) {
+    faceMessage.textContent =
+      "Please read and accept the face enrollment consent first.";
+    return;
+  }
+
+  try {
+    enrollBtn.disabled = true;
+    faceMessage.textContent = "Submitting consent...";
+
+    const data = await apiRequest(
+      "/api/student/face-enrollment/consent",
+      {
+        method: "POST",
+        body: JSON.stringify({ consent: true })
+      }
+    );
+
+    faceMessage.textContent = data.message ||
+      "Consent received. Secure face verification setup is pending.";
+
+    await loadFaceStatus();
+
+  } catch (error) {
+    faceMessage.textContent = error.message;
+  } finally {
+    enrollBtn.disabled = false;
+  }
+});
+
+window.addEventListener("beforeunload", stopCamera);
+
+loadDashboard();
+
+

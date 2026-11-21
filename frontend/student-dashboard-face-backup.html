@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusOS | Student Dashboard</title>
+    <link rel="stylesheet" href="student-dashboard.css">
+</head>
+
+<body>
+
+    <header class="header">
+        <h2>CampusOS</h2>
+        <button id="logoutBtn">Logout</button>
+    </header>
+
+    <main class="container">
+
+        <h1>Student Dashboard</h1>
+        <p>Welcome to your CampusOS student portal.</p>
+
+        <!-- Student Profile -->
+        <section class="profile">
+            <h2>Student Information</h2>
+
+            <p><strong>Student ID:</strong>
+                <span id="studentId">Loading...</span>
+            </p>
+
+            <p><strong>Email:</strong>
+                <span id="studentEmail">Loading...</span>
+            </p>
+
+            <p><strong>Role:</strong>
+                <span id="studentRole">Loading...</span>
+            </p>
+
+            <p id="status">Connecting to CampusOS server...</p>
+        </section>
+
+        <!-- CampusOS Features -->
+        <section class="features">
+            <div class="feature-card">Attendance</div>
+            <div class="feature-card">Timetable</div>
+            <div class="feature-card">Assignments</div>
+            <div class="feature-card">Exam Results</div>
+            <div class="feature-card">Campus Map</div>
+            <div class="feature-card">Announcements</div>
+        </section>
+
+        <!-- Attendance Section -->
+        <section class="attendance-section">
+
+            <h2>My Attendance</h2>
+
+            <div class="attendance-summary">
+
+                <h3>Overall Attendance</h3>
+
+                <h1 id="attendancePercentage">Loading...</h1>
+
+                <p>Total Classes:
+                    <span id="totalClasses">0</span>
+                </p>
+
+                <p>Present Classes:
+                    <span id="presentClasses">0</span>
+                </p>
+
+                <p>Absent Classes:
+                    <span id="absentClasses">0</span>
+                </p>
+
+            </div>
+
+            <!-- Subject Attendance -->
+            <h3>Subject-wise Attendance</h3>
+
+            <table border="1" cellpadding="10">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Present / Total</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+
+                <tbody id="subjectAttendance">
+                </tbody>
+            </table>
+
+            <!-- Lecture and Lab Records -->
+            <h3>Lecture and Lab Attendance Records</h3>
+
+            <table border="1" cellpadding="10">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Class Type</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody id="attendanceRecords">
+                </tbody>
+            </table>
+
+        </section>
+
+    </main>
+
+    <!-- JavaScript -->
+    <script src="student-dashboard.js"></script>
+
+</body>
+</html>

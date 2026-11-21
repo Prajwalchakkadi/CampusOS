@@ -1,117 +1,122 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CampusOS | Student Dashboard</title>
-    <link rel="stylesheet" href="student-dashboard.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusOS | Student Dashboard</title>
+  <link rel="stylesheet" href="student-dashboard.css">
 </head>
 
 <body>
 
-    <header class="header">
-        <h2>CampusOS</h2>
-        <button id="logoutBtn">Logout</button>
-    </header>
+<header class="header">
+  <h2>CampusOS</h2>
+  <button id="logoutBtn">Logout</button>
+</header>
 
-    <main class="container">
+<main class="container">
 
-        <h1>Student Dashboard</h1>
-        <p>Welcome to your CampusOS student portal.</p>
+  <h1>Student Dashboard</h1>
+  <p>Welcome to your CampusOS student portal.</p>
 
-        <!-- Student Profile -->
-        <section class="profile">
-            <h2>Student Information</h2>
+  <section class="profile">
+    <h2>Student Information</h2>
+    <p><strong>Student ID:</strong> <span id="studentId">Loading...</span></p>
+    <p><strong>Email:</strong> <span id="studentEmail">Loading...</span></p>
+    <p><strong>Role:</strong> <span id="studentRole">Loading...</span></p>
+    <p id="status">Connecting to CampusOS server...</p>
+  </section>
 
-            <p><strong>Student ID:</strong>
-                <span id="studentId">Loading...</span>
-            </p>
+  <section class="face-section">
+    <h2>Face Enrollment</h2>
 
-            <p><strong>Email:</strong>
-                <span id="studentEmail">Loading...</span>
-            </p>
+    <p>
+      Use your front camera to preview your face before enrollment.
+      Camera preview alone does not verify your identity.
+    </p>
 
-            <p><strong>Role:</strong>
-                <span id="studentRole">Loading...</span>
-            </p>
+    <video
+      id="faceVideo"
+      autoplay
+      muted
+      playsinline
+      width="320"
+      height="240">
+    </video>
 
-            <p id="status">Connecting to CampusOS server...</p>
-        </section>
+    <div>
+      <button type="button" id="startCameraBtn">Start Camera</button>
+      <button type="button" id="stopCameraBtn">Stop Camera</button>
+    </div>
 
-        <!-- CampusOS Features -->
-        <section class="features">
-            <div class="feature-card">Attendance</div>
-            <div class="feature-card">Timetable</div>
-            <div class="feature-card">Assignments</div>
-            <div class="feature-card">Exam Results</div>
-            <div class="feature-card">Campus Map</div>
-            <div class="feature-card">Announcements</div>
-        </section>
+    <div class="consent">
+      <label>
+        <input type="checkbox" id="faceConsent">
+        I voluntarily consent to face enrollment for CampusOS attendance.
+        I understand that secure face verification is not yet active.
+      </label>
+    </div>
 
-        <!-- Attendance Section -->
-        <section class="attendance-section">
+    <button type="button" id="enrollFaceBtn">
+      Submit Enrollment Consent
+    </button>
 
-            <h2>My Attendance</h2>
+    <p id="faceMessage">Checking enrollment status...</p>
+  </section>
 
-            <div class="attendance-summary">
+  <section class="features">
+    <h2>Student Services</h2>
+    <div class="feature-card">Attendance</div>
+    <div class="feature-card">Timetable</div>
+    <div class="feature-card">Assignments</div>
+    <div class="feature-card">Exam Results</div>
+    <div class="feature-card">Campus Map</div>
+    <div class="feature-card">Announcements</div>
+  </section>
 
-                <h3>Overall Attendance</h3>
+  <section class="attendance-section">
+    <h2>My Attendance</h2>
 
-                <h1 id="attendancePercentage">Loading...</h1>
+    <div class="attendance-summary">
+      <h3>Overall Attendance</h3>
+      <h1 id="attendancePercentage">Loading...</h1>
 
-                <p>Total Classes:
-                    <span id="totalClasses">0</span>
-                </p>
+      <p>Total Classes: <span id="totalClasses">0</span></p>
+      <p>Present Classes: <span id="presentClasses">0</span></p>
+      <p>Absent Classes: <span id="absentClasses">0</span></p>
+    </div>
 
-                <p>Present Classes:
-                    <span id="presentClasses">0</span>
-                </p>
+    <h3>Subject-wise Attendance</h3>
+    <table border="1" cellpadding="10">
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Present / Total</th>
+          <th>Percentage</th>
+        </tr>
+      </thead>
+      <tbody id="subjectAttendance"></tbody>
+    </table>
 
-                <p>Absent Classes:
-                    <span id="absentClasses">0</span>
-                </p>
+    <h3>Lecture and Lab Attendance Records</h3>
+    <table border="1" cellpadding="10">
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Class Type</th>
+          <th>Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="attendanceRecords"></tbody>
+    </table>
+  </section>
 
-            </div>
+</main>
 
-            <!-- Subject Attendance -->
-            <h3>Subject-wise Attendance</h3>
-
-            <table border="1" cellpadding="10">
-                <thead>
-                    <tr>
-                        <th>Subject</th>
-                        <th>Present / Total</th>
-                        <th>Percentage</th>
-                    </tr>
-                </thead>
-
-                <tbody id="subjectAttendance">
-                </tbody>
-            </table>
-
-            <!-- Lecture and Lab Records -->
-            <h3>Lecture and Lab Attendance Records</h3>
-
-            <table border="1" cellpadding="10">
-                <thead>
-                    <tr>
-                        <th>Subject</th>
-                        <th>Class Type</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-
-                <tbody id="attendanceRecords">
-                </tbody>
-            </table>
-
-        </section>
-
-    </main>
-
-    <!-- JavaScript -->
-    <script src="student-dashboard.js"></script>
+<script type="module" src="student-dashboard.js"></script>
 
 </body>
 </html>
+

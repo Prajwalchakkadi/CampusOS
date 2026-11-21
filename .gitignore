@@ -1,15 +1,7 @@
-# Firebase private credentials
-serviceAccountKey.json
-backend/serviceAccountKey.json
-*.pem
-
-# Environment secrets
+node_modules/
 .env
 .env.*
 !.env.example
-
-# Dependencies
-node_modules/
-
-# Debug logs
-npm-debug.log*
+serviceAccountKey.json
+firebase-adminsdk*.json
+*.log

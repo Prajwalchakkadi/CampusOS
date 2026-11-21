@@ -6,7 +6,7 @@ import {
   doc,
   setDoc,
   serverTimestamp
-} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
 const form = document.querySelector("form");
 const message = document.getElementById("message");
@@ -105,7 +105,7 @@ form?.addEventListener("submit", async (event) => {
     console.error("Registration error:", error);
 
     message.textContent =
-      "Unable to submit. Please check your internet connection and Firestore rules.";
+      "Registration failed: " + (error.code || error.message);
   } finally {
     if (button) button.disabled = false;
   }
