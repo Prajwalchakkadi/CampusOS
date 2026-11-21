@@ -1,0 +1,111 @@
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.header {
+  background: #101c36;
+  color: white;
+  padding: 25px 20px;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+.header p {
+  color: #cbd5e1;
+}
+
+.container {
+  width: 92%;
+  max-width: 1100px;
+  margin: 25px auto;
+}
+
+.welcome {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+}
+
+.welcome h2 {
+  color: #142b50;
+  margin-bottom: 10px;
+}
+
+.welcome p {
+  color: #64748b;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 18px;
+  margin-bottom: 30px;
+}
+
+.card {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+  border-left: 5px solid #2563eb;
+}
+
+.card h3 {
+  font-size: 15px;
+  color: #64748b;
+}
+
+.card p {
+  font-size: 32px;
+  font-weight: bold;
+  margin-top: 12px;
+  color: #142b50;
+}
+
+.applications {
+  background: white;
+  padding: 22px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+}
+
+.applications h2 {
+  margin-bottom: 20px;
+  color: #142b50;
+}
+
+#applicationList {
+  color: #64748b;
+  overflow-x: auto;
+}
+
+@media (max-width: 600px) {
+  .header h1 {
+    font-size: 25px;
+  }
+
+  .container {
+    width: 94%;
+  }
+
+  .welcome,
+  .applications {
+    padding: 18px;
+  }
+}
+

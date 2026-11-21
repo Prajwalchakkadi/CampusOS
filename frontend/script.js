@@ -1,122 +1,67 @@
+import { auth } from "./firebase.js";
+
+import {
+  signInWithEmailAndPassword,
+  signOut
+} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
+
 const loginForm = document.getElementById("loginForm");
 const message = document.getElementById("message");
 const loginButton = loginForm.querySelector('button[type="submit"]');
 
-const API_URL = "http://localhost:5000/api/auth/login";
+loginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
-// LOGIN FORM
-loginForm.addEventListener("submit", async function (event) {
+  const role = document.getElementById("role").value;
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
 
-    event.preventDefault();
+  if (!role || !email || !password) {
+    message.textContent = "Please fill in all fields.";
+    return;
+  }
 
-    const role = document.getElementById("role").value;
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+  loginButton.disabled = true;
+  loginButton.textContent = "Logging in...";
+  message.textContent = "Connecting to Firebase...";
 
-    if (!role || !email || !password) {
-        message.style.color = "red";
-        message.textContent = "Please fill in all fields.";
-        return;
+  try {
+    const result = await signInWithEmailAndPassword(auth, email, password);
+
+    const tokenResult = await result.user.getIdTokenResult(true);
+    const isAdmin = tokenResult.claims.admin === true;
+
+    if (role === "Administrator" && !isAdmin) {
+      await signOut(auth);
+      throw new Error("Administrator permission is missing.");
     }
 
-    loginButton.disabled = true;
-    loginButton.textContent = "Logging in...";
-
-    message.style.color = "#1264a3";
-    message.textContent = "Connecting to CampusOS server...";
-
-    try {
-
-        const response = await fetch(API_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password,
-                role: role
-            })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-            throw new Error(data.message || "Login failed.");
-        }
-
-        // SAVE LOGIN INFORMATION
-        sessionStorage.setItem("token", data.token);
-
-        sessionStorage.setItem(
-            "user",
-            JSON.stringify(data.user)
-        );
-
-        sessionStorage.setItem("userName", data.user.name);
-        sessionStorage.setItem("userEmail", data.user.email);
-
-        message.style.color = "green";
-        message.textContent =
-            "Welcome " + data.user.name +
-            "! Login successful as " + data.user.role + ".";
-
-        console.log("CampusOS Login Successful:", data.user);
-
-        // REDIRECT BASED ON ROLE
-        setTimeout(() => {
-
-            if (data.user.role === "Student") {
-                window.location.href = "student-dashboard.html";
-            }
-
-            else if (data.user.role === "Teacher") {
-                window.location.href = "teacher-dashboard.html";
-            }
-
-            else if (data.user.role === "Parent") {
-                window.location.href = "parent-dashboard.html";
-            }
-
-            else if (data.user.role === "Administrator") {
-                window.location.href = "admin-dashboard.html";
-            }
-
-            else if (data.user.role === "Warden") {
-                window.location.href = "warden-dashboard.html";
-            }
-
-            else {
-                message.textContent = "Unknown user role.";
-            }
-
-        }, 1000);
-
-    } catch (error) {
-
-        message.style.color = "red";
-        message.textContent = error.message;
-
-        console.error("Login Error:", error);
-
-    } finally {
-
-        loginButton.disabled = false;
-        loginButton.textContent = "Login";
-
+    if (role !== "Administrator" && isAdmin) {
+      await signOut(auth);
+      throw new Error("Please select Administrator.");
     }
 
+    sessionStorage.setItem("userEmail", result.user.email);
+    sessionStorage.setItem("userRole", role);
+
+    if (role === "Administrator") {
+      window.location.href = "admin.html";
+      return;
+    }
+
+    message.textContent = "Login successful. Dashboard setup pending.";
+
+  } catch (error) {
+    console.error("CAMPUSOS LOGIN ERROR:", error);
+    message.textContent =
+      (error.code || error.name || "Error") + ": " + error.message;
+  } finally {
+    loginButton.disabled = false;
+    loginButton.textContent = "Login";
+  }
 });
 
-// FORGOT PASSWORD
-document.getElementById("forgotPassword")
-    .addEventListener("click", function (event) {
-
-        event.preventDefault();
-
-        message.style.color = "#1264a3";
-
-        message.textContent =
-            "Please contact your college administrator for password recovery.";
-
-    });
+document.getElementById("forgotPassword").addEventListener("click", (event) => {
+  event.preventDefault();
+  message.textContent = "Please contact your college administrator.";
+});

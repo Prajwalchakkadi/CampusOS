@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusOS | Admin Dashboard</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <header class="header">
+    <h1>CampusOS</h1>
+    <p>College Administration Dashboard</p>
+  </header>
+
+  <main class="container">
+
+    <section class="welcome">
+      <h2>Welcome, Administrator!</h2>
+      <p>Manage student applications and campus activities.</p>
+    </section>
+
+    <section class="stats">
+      <div class="card">
+        <h3>Pending Applications</h3>
+        <p id="pendingCount">0</p>
+      </div>
+
+      <div class="card">
+        <h3>Approved Students</h3>
+        <p id="approvedCount">0</p>
+      </div>
+
+      <div class="card">
+        <h3>Rejected Applications</h3>
+        <p id="rejectedCount">0</p>
+      </div>
+    </section>
+
+    <section class="applications">
+      <h2>Student Applications</h2>
+
+      <div id="applicationList">
+        Loading applications...
+      </div>
+    </section>
+
+  </main>
+
+  <script type="module" src="admin.js"></script>
+
+</body>
+</html>
+
