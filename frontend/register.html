@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,12 +16,15 @@
 </header>
 
 <main class="container">
+
   <div class="heading">
     <h2>Student Registration</h2>
     <p>Enter your details carefully</p>
   </div>
 
   <form id="registrationForm">
+
+    <!-- 1. PERSONAL INFORMATION -->
 
     <h3>1. Personal Information</h3>
 
@@ -39,14 +43,16 @@
     <label>Gender *</label>
     <select name="gender" required>
       <option value="">Select gender</option>
-      <option>Male</option>
-      <option>Female</option>
-      <option>Other</option>
-      <option>Prefer not to say</option>
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+      <option value="Other">Other</option>
+      <option value="Prefer not to say">Prefer not to say</option>
     </select>
 
     <label>Caste / Community (Optional)</label>
     <input type="text" name="caste">
+
+    <!-- 2. ACADEMIC AND CONTACT DETAILS -->
 
     <h3>2. Academic and Contact Details</h3>
 
@@ -58,28 +64,35 @@
 
     <label>Student Phone Number *</label>
     <input type="tel" name="phone"
-           pattern="[0-9]{10}" maxlength="10" required>
+           pattern="[0-9]{10}"
+           maxlength="10"
+           inputmode="numeric"
+           placeholder="Enter student phone number"
+           required>
+
+    <h3>Parent Contact Information</h3>
+
+    <label>Father's Phone Number *</label>
+    <input type="tel" name="fatherPhone"
+           pattern="[0-9]{10}"
+           maxlength="10"
+           inputmode="numeric"
+           placeholder="Enter father's phone number"
+           required>
+
+    <label>Mother's Phone Number *</label>
+    <input type="tel" name="motherPhone"
+           pattern="[0-9]{10}"
+           maxlength="10"
+           inputmode="numeric"
+           placeholder="Enter mother's phone number"
+           required>
 
     <label>Parent's Email ID *</label>
     <input type="email" name="parentEmail" required>
 
-    <h3>3. Photograph and Signature</h3>
 
-    <label>Student Photo *</label>
-    <input type="file" name="studentPhoto"
-           accept="image/*" required>
-
-    <label>Student Signature *</label>
-    <input type="file" name="studentSignature"
-           accept="image/*" required>
-
-    <label>Mother's Photo *</label>
-    <input type="file" name="motherPhoto"
-           accept="image/*" required>
-
-    <label>Father's Photo *</label>
-    <input type="file" name="fatherPhoto"
-           accept="image/*" required>
+    <!-- 4. RESIDENTIAL INFORMATION -->
 
     <h3>4. Residential Information</h3>
 
@@ -94,24 +107,31 @@
       <option value="Localite">Localite / Day Scholar</option>
     </select>
 
+    <!-- NOTICE -->
+
     <div class="notice">
       Your information will be submitted for college
       administrator verification. Login credentials
       will be issued after approval.
     </div>
 
-    <button type="submit">Submit Registration</button>
+    <button type="submit">
+      Submit Registration
+    </button>
 
     <p id="message" role="status"></p>
+
   </form>
 
   <p class="login-link">
     Already registered?
     <a href="index.html">Go to Login</a>
   </p>
+
 </main>
 
-<script src="register.js"></script>
+<script type="module" src="register.js"></script>
+
 </body>
 </html>
 
