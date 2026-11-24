@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10251F">
+  <title>CampusOS | Home</title>
+  <link rel="stylesheet" href="student-home.css">
+</head>
+
+<body>
+
+<aside class="sidebar" id="sidebar">
+
+  <a class="brand" href="student-home.html">
+    <span class="brand-mark">C</span>
+    <span>CampusOS</span>
+  </a>
+
+  <p class="nav-label">STUDENT WORKSPACE</p>
+
+  <nav class="nav">
+    <a class="nav-link active" href="student-home.html"><span class="nav-icon">🏠</span> Home</a>
+    <a class="nav-link" href="student-profile.html"><span class="nav-icon">👤</span> My Profile</a>
+    <a class="nav-link" href="student-attendance.html"><span class="nav-icon">📅</span> Attendance</a>
+    <a class="nav-link" href="student-academics.html"><span class="nav-icon">📚</span> Academics</a>
+    <a class="nav-link" href="student-planner.html"><span class="nav-icon">⏱️</span> Study Planner</a>
+    <a class="nav-link" href="student-ai.html"><span class="nav-icon">🤖</span> AI Assistant</a>
+    <a class="nav-link" href="student-library.html"><span class="nav-icon">📖</span> Library</a>
+    <a class="nav-link" href="student-bus.html"><span class="nav-icon">🚌</span> College Bus</a>
+    <a class="nav-link" href="student-hostel.html"><span class="nav-icon">🏢</span> Hostel</a>
+    <a class="nav-link" href="student-campus-map.html"><span class="nav-icon">🗺️</span> Campus Map</a>
+    <a class="nav-link" href="student-events.html"><span class="nav-icon">🎉</span> Events & Notices</a>
+    <a class="nav-link" href="student-improvement.html"><span class="nav-icon">📈</span> Improvement</a>
+    <a class="nav-link" href="student-settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="help-card">
+      <strong>🌟 Keep Growing!</strong>
+      <p>Your learning journey starts here. Explore, learn and achieve.</p>
+    </div>
+
+    <button class="logout-btn" id="logoutBtn" type="button">
+      ↪ Log out
+    </button>
+  </div>
+
+</aside>
+
+<main class="main-area">
+
+  <header class="topbar">
+
+    <button class="mobile-menu" id="menuBtn" type="button">☰</button>
+
+    <div class="breadcrumb">Student Portal / Home</div>
+
+    <div class="topbar-right">
+      <span class="live-dot"></span>
+      <span id="connectionLabel">Connecting</span>
+      <div class="avatar" id="avatarInitial">S</div>
+    </div>
+
+  </header>
+
+  <div class="page-content">
+
+    <section class="welcome-row">
+      <p class="eyebrow" id="todayLabel">STUDENT WORKSPACE</p>
+
+      <h1>
+        Welcome back,
+        <span id="welcomeName">Student</span> 👋
+      </h1>
+
+      <p class="muted">
+        Your campus, your learning, your future. Everything starts here.
+      </p>
+    </section>
+
+    <section class="hero-card">
+
+      <div class="hero-content">
+
+        <span class="hero-tag">✦ YOUR CAMPUS EXPERIENCE</span>
+
+        <h2>Learn More.<br>Achieve More.<br>Become More.</h2>
+
+        <p>
+          Welcome to CampusOS, your intelligent campus companion.
+          Access your academic tools, learning resources and campus services
+          from one place.
+        </p>
+
+      </div>
+
+      <div class="campus-art" aria-label="Decorative 3D campus illustration">
+
+        <div class="campus-scene">
+
+          <div class="ground"></div>
+          <div class="building"></div>
+          <div class="tree one"></div>
+          <div class="tree two"></div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section>
+
+      <div class="section-heading">
+        <div>
+          <h2>Explore Your Campus</h2>
+          <p>Choose a service to get started.</p>
+        </div>
+      </div>
+
+      <div class="module-grid">
+
+        <a href="student-profile.html" class="module-card"
+           style="--card-color:#7C3AED;--card-bg:#EDE9FE">
+          <span class="arrow">↗</span>
+          <div class="card-icon">👤</div>
+          <h3>My Profile</h3>
+          <p>View your personal and academic information.</p>
+        </a>
+
+        <a href="student-attendance.html" class="module-card"
+           style="--card-color:#047857;--card-bg:#D1FAE5">
+          <span class="arrow">↗</span>
+          <div class="card-icon">📅</div>
+          <h3>Attendance</h3>
+          <p>Attendance entry, QR scanner and records.</p>
+        </a>
+
+        <a href="student-academics.html" class="module-card"
+           style="--card-color:#D97706;--card-bg:#FEF3C7">
+          <span class="arrow">↗</span>
+          <div class="card-icon">📚</div>
+          <h3>Academics</h3>
+          <p>Timetable, homework, assignments and results.</p>
+        </a>
+
+        <a href="student-planner.html" class="module-card"
+           style="--card-color:#2563EB;--card-bg:#DBEAFE">
+          <span class="arrow">↗</span>
+          <div class="card-icon">⏱️</div>
+          <h3>Study Planner</h3>
+          <p>Organize daily tasks and focused study sessions.</p>
+        </a>
+
+        <a href="student-ai.html" class="module-card"
+           style="--card-color:#DB2777;--card-bg:#FCE7F3">
+          <span class="arrow">↗</span>
+          <div class="card-icon">🤖</div>
+          <h3>AI Assistant</h3>
+          <p>Ask questions and learn with CampusOS AI.</p>
+        </a>
+
+        <a href="student-library.html" class="module-card"
+           style="--card-color:#0D9488;--card-bg:#CCFBF1">
+          <span class="arrow">↗</span>
+          <div class="card-icon">📖</div>
+          <h3>Library</h3>
+          <p>Explore books, resources and availability.</p>
+        </a>
+
+        <a href="student-bus.html" class="module-card"
+           style="--card-color:#EA580C;--card-bg:#FFEDD5">
+          <span class="arrow">↗</span>
+          <div class="card-icon">🚌</div>
+          <h3>College Bus</h3>
+          <p>View bus routes, stops and timings.</p>
+        </a>
+
+        <a href="student-hostel.html" class="module-card"
+           style="--card-color:#9333EA;--card-bg:#F3E8FF">
+          <span class="arrow">↗</span>
+          <div class="card-icon">🏢</div>
+          <h3>Hostel</h3>
+          <p>Check hostel services and room availability.</p>
+        </a>
+
+        <a href="student-campus-map.html" class="module-card"
+           style="--card-color:#0891B2;--card-bg:#CFFAFE">
+          <span class="arrow">↗</span>
+          <div class="card-icon">🗺️</div>
+          <h3>Campus Map</h3>
+          <p>Explore campus places and teacher availability.</p>
+        </a>
+
+        <a href="student-events.html" class="module-card"
+           style="--card-color:#CA8A04;--card-bg:#FEF9C3">
+          <span class="arrow">↗</span>
+          <div class="card-icon">🎉</div>
+          <h3>Events & Notices</h3>
+          <p>Discover college events and announcements.</p>
+        </a>
+
+        <a href="student-improvement.html" class="module-card"
+           style="--card-color:#16A34A;--card-bg:#DCFCE7">
+          <span class="arrow">↗</span>
+          <div class="card-icon">📈</div>
+          <h3>Academic Improvement</h3>
+          <p>Daily practice and learning progress.</p>
+        </a>
+
+        <a href="student-settings.html" class="module-card"
+           style="--card-color:#64748B;--card-bg:#E2E8F0">
+          <span class="arrow">↗</span>
+          <div class="card-icon">⚙️</div>
+          <h3>Settings</h3>
+          <p>Manage your CampusOS account.</p>
+        </a>
+
+      </div>
+
+    </section>
+
+    <section class="notice-grid">
+
+      <article class="notice-card">
+        <h3>📢 College Announcements</h3>
+        <div class="notice-placeholder">
+          College announcements will appear here when the announcement
+          module is connected.
+        </div>
+      </article>
+
+      <article class="notice-card">
+        <h3>🎓 Upcoming Events</h3>
+        <div class="notice-placeholder">
+          Upcoming college events and registrations will appear here
+          when the events module is connected.
+        </div>
+      </article>
+
+    </section>
+
+    <footer class="footer">
+      © 2026 CampusOS — Intelligent Campus Management System
+    </footer>
+
+  </div>
+
+</main>
+
+<script type="module" src="student-home.js"></script>
+
+</body>
+</html>

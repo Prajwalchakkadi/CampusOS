@@ -1,0 +1,358 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10251F">
+
+  <title>CampusOS | My Profile</title>
+
+  <link rel="stylesheet" href="student-home.css">
+  <link rel="stylesheet" href="student-profile.css">
+</head>
+
+<body>
+
+<aside class="sidebar" id="sidebar">
+
+  <a class="brand" href="student-home.html">
+    <span class="brand-mark">C</span>
+    <span>CampusOS</span>
+  </a>
+
+  <p class="nav-label">STUDENT WORKSPACE</p>
+
+  <nav class="nav">
+
+    <a class="nav-link" href="student-home.html">
+      <span class="nav-icon">🏠</span> Home
+    </a>
+
+    <a class="nav-link active" href="student-profile.html">
+      <span class="nav-icon">👤</span> My Profile
+    </a>
+
+    <a class="nav-link" href="student-attendance.html">
+      <span class="nav-icon">📅</span> Attendance
+    </a>
+
+    <a class="nav-link" href="student-academics.html">
+      <span class="nav-icon">📚</span> Academics
+    </a>
+
+    <a class="nav-link" href="student-planner.html">
+      <span class="nav-icon">⏱️</span> Study Planner
+    </a>
+
+    <a class="nav-link" href="student-ai.html">
+      <span class="nav-icon">🤖</span> AI Assistant
+    </a>
+
+    <a class="nav-link" href="student-library.html">
+      <span class="nav-icon">📖</span> Library
+    </a>
+
+    <a class="nav-link" href="student-bus.html">
+      <span class="nav-icon">🚌</span> College Bus
+    </a>
+
+    <a class="nav-link" href="student-hostel.html">
+      <span class="nav-icon">🏢</span> Hostel
+    </a>
+
+    <a class="nav-link" href="student-campus-map.html">
+      <span class="nav-icon">🗺️</span> Campus Map
+    </a>
+
+    <a class="nav-link" href="student-events.html">
+      <span class="nav-icon">🎉</span> Events & Notices
+    </a>
+
+    <a class="nav-link" href="student-improvement.html">
+      <span class="nav-icon">📈</span> Improvement
+    </a>
+
+    <a class="nav-link" href="student-settings.html">
+      <span class="nav-icon">⚙️</span> Settings
+    </a>
+
+  </nav>
+
+  <div class="sidebar-bottom">
+
+    <div class="help-card">
+      <strong>🌟 CampusOS Profile</strong>
+      <p>Your verified student information in one place.</p>
+    </div>
+
+    <button class="logout-btn" id="logoutBtn" type="button">
+      ↪ Log out
+    </button>
+
+  </div>
+
+</aside>
+
+<main class="main-area">
+
+  <header class="topbar">
+
+    <button class="mobile-menu" id="menuBtn" type="button">
+      ☰
+    </button>
+
+    <div class="breadcrumb">
+      Student Portal / My Profile
+    </div>
+
+    <div class="topbar-right">
+      <span class="live-dot"></span>
+      <span id="connectionLabel">Connecting</span>
+      <div class="avatar" id="avatarInitial">S</div>
+    </div>
+
+  </header>
+
+  <div class="page-content profile-page">
+
+    <section class="profile-heading">
+      <p class="eyebrow">STUDENT INFORMATION</p>
+      <h1>My Profile 👤</h1>
+      <p class="muted">
+        View your personal and academic information.
+      </p>
+    </section>
+
+    <div class="profile-banner">
+
+      <div class="profile-photo" id="profilePhoto">
+        <span id="profileInitial">S</span>
+      </div>
+
+      <div class="profile-identity">
+
+        <span class="verified-label">✓ STUDENT PROFILE</span>
+
+        <h2 id="profileName">Loading student...</h2>
+
+        <p id="profileCourse">Course details loading...</p>
+
+        <p id="profileUSN">Registration number: Loading...</p>
+
+      </div>
+
+      <div class="profile-status">
+        <span class="status-dot"></span>
+        Student Account
+      </div>
+
+    </div>
+
+    <div class="profile-notice">
+
+      <span>🔒</span>
+
+      <div>
+        <strong>Administrator-managed profile</strong>
+
+        <p>
+          Your profile details are maintained by the College Administrator.
+          Contact the administration office if any information needs correction.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- PERSONAL INFORMATION -->
+
+    <section class="profile-section">
+
+      <div class="profile-section-title">
+
+        <span class="section-symbol personal-symbol">👤</span>
+
+        <div>
+          <h2>Personal Information</h2>
+          <p>Your basic personal details</p>
+        </div>
+
+      </div>
+
+      <div class="profile-details">
+
+        <div class="detail-item">
+          <span>Full Name</span>
+          <strong id="fullName">Not available</strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Date of Birth</span>
+          <strong id="dateOfBirth">Not available</strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Gender</span>
+          <strong id="gender">Not available</strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Blood Group</span>
+          <strong id="bloodGroup">Not available</strong>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ACADEMIC INFORMATION -->
+
+    <section class="profile-section">
+
+      <div class="profile-section-title">
+
+        <span class="section-symbol academic-symbol">🎓</span>
+
+        <div>
+          <h2>Academic Information</h2>
+          <p>Your college and course details</p>
+        </div>
+
+      </div>
+
+      <div class="profile-details">
+
+        <div class="detail-item">
+          <span>College</span>
+          <strong id="collegeName">Not available</strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Department</span>
+          <strong id="department">Not available</strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Course</span>
+          <strong id="course">Not available</strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Year</span>
+          <strong id="year">Not available</strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Semester</span>
+          <strong id="semester">Not available</strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Section</span>
+          <strong id="section">Not available</strong>
+        </div>
+
+        <div class="detail-item">
+          <span>USN / Registration Number</span>
+          <strong id="registrationNumber">Not available</strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Admission Year</span>
+          <strong id="admissionYear">Not available</strong>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- CONTACT INFORMATION -->
+
+    <section class="profile-section">
+
+      <div class="profile-section-title">
+
+        <span class="section-symbol contact-symbol">📞</span>
+
+        <div>
+          <h2>Contact Information</h2>
+          <p>Your registered contact details</p>
+        </div>
+
+      </div>
+
+      <div class="profile-details">
+
+        <div class="detail-item">
+          <span>Email Address</span>
+          <strong id="email">Not available</strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Mobile Number</span>
+          <strong id="phone">Not available</strong>
+        </div>
+
+        <div class="detail-item full-width">
+          <span>Residential Address</span>
+          <strong id="address">Not available</strong>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- PARENT INFORMATION -->
+
+    <section class="profile-section">
+
+      <div class="profile-section-title">
+
+        <span class="section-symbol parent-symbol">👨‍👩‍👦</span>
+
+        <div>
+          <h2>Parent / Guardian Information</h2>
+          <p>Registered guardian details</p>
+        </div>
+
+      </div>
+
+      <div class="profile-details">
+
+        <div class="detail-item">
+          <span>Parent / Guardian Name</span>
+          <strong id="parentName">Not available</strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Relationship</span>
+          <strong id="parentRelation">Not available</strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Guardian Mobile</span>
+          <strong id="parentPhone">Not available</strong>
+        </div>
+
+        <div class="detail-item">
+          <span>Guardian Email</span>
+          <strong id="parentEmail">Not available</strong>
+        </div>
+
+      </div>
+
+    </section>
+
+    <p class="profile-footer">
+      🔐 Profile information can only be updated by an authorized College Administrator.
+    </p>
+
+  </div>
+
+</main>
+
+<script src="student-profile.js"></script>
+
+</body>
+</html>
+

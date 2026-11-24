@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10251F">
+
+  <title>CampusOS | Student Attendance</title>
+
+  <link rel="stylesheet" href="student-home.css">
+  <link rel="stylesheet" href="student-attendance.css">
+</head>
+
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="student-home.html">
+      <span class="brand-icon">C</span>
+      <span>CampusOS</span>
+    </a>
+
+    <nav class="sidebar-nav">
+      <a href="student-home.html">🏠 Home</a>
+      <a href="student-profile.html">👤 My Profile</a>
+      <a class="active" href="student-attendance.html">📊 Attendance</a>
+      <a href="student-academics.html">📚 Academics</a>
+      <a href="student-planner.html">🗓️ Study Planner</a>
+      <a href="student-ai.html">🤖 AI Assistant</a>
+      <a href="student-library.html">📖 Library</a>
+      <a href="student-bus.html">🚌 College Bus</a>
+      <a href="student-hostel.html">🏨 Hostel</a>
+      <a href="student-campus-map.html">🗺️ Campus Map</a>
+      <a href="student-events.html">🎉 Events</a>
+      <a href="student-improvement.html">📈 Improvement</a>
+      <a href="student-settings.html">⚙️ Settings</a>
+    </nav>
+
+    <button id="logoutBtn" class="logout-button" type="button">
+      Logout
+    </button>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="attendance-header">
+      <button id="menuBtn" type="button">☰</button>
+      <div>
+        <h1>Student Attendance</h1>
+        <p>Monitor your classes, labs and attendance history.</p>
+      </div>
+    </header>
+
+    <section class="attendance-welcome">
+      <div>
+        <p>STUDENT PORTAL</p>
+        <h2>Your Attendance Overview</h2>
+        <span id="connectionLabel">Connecting...</span>
+      </div>
+      <div class="attendance-icon">📊</div>
+    </section>
+
+    <!-- ATTENDANCE SUMMARY -->
+
+    <section class="attendance-stats">
+
+      <article class="attendance-stat">
+        <span>Attendance Percentage</span>
+        <strong id="attendancePercentage">--%</strong>
+      </article>
+
+      <article class="attendance-stat">
+        <span>Total Classes</span>
+        <strong id="totalClasses">--</strong>
+      </article>
+
+      <article class="attendance-stat">
+        <span>Present Classes</span>
+        <strong id="presentClasses">--</strong>
+      </article>
+
+      <article class="attendance-stat">
+        <span>Absent Classes</span>
+        <strong id="absentClasses">--</strong>
+      </article>
+
+    </section>
+
+    <!-- ATTENDANCE CHART -->
+
+    <section class="attendance-card">
+      <h2>Attendance Progress</h2>
+
+      <div class="attendance-progress">
+        <div id="attendanceRing" class="attendance-ring">
+          <strong id="ringValue">--%</strong>
+        </div>
+
+        <div class="attendance-legend">
+          <p>🟢 Present: <strong id="legendPresent">--</strong></p>
+          <p>🟡 Absent: <strong id="legendAbsent">--</strong></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- QR ATTENDANCE -->
+
+    <section class="attendance-card">
+      <h2>QR Classroom Attendance</h2>
+      <p>Scan the active classroom QR code provided by your teacher.</p>
+
+      <video
+        id="qrVideo"
+        autoplay
+        muted
+        playsinline>
+      </video>
+
+      <div class="attendance-actions">
+        <button id="startQRScannerBtn" type="button">
+          Start QR Scanner
+        </button>
+
+        <button id="stopQRScannerBtn" type="button">
+          Stop Scanner
+        </button>
+      </div>
+
+      <p id="qrScanMessage" aria-live="polite">
+        Scanner is ready.
+      </p>
+    </section>
+
+    <!-- FACE ENROLLMENT -->
+
+    <section class="attendance-card">
+      <h2>Face Enrollment</h2>
+
+      <p>
+        Camera preview is not identity verification.
+        Secure face verification requires a connected provider.
+      </p>
+
+      <div id="faceMessage">
+        Checking enrollment status...
+      </div>
+
+      <video
+        id="faceVideo"
+        autoplay
+        muted
+        playsinline>
+      </video>
+
+      <div class="attendance-actions">
+        <button id="startCameraBtn" type="button">
+          Start Camera
+        </button>
+
+        <button id="stopCameraBtn" type="button">
+          Stop Camera
+        </button>
+      </div>
+
+      <label class="consent-label">
+        <input type="checkbox" id="faceConsent">
+
+        I voluntarily consent to face enrollment. I understand
+        that secure face verification is not active until the
+        provider is connected.
+      </label>
+
+      <button id="enrollFaceBtn" type="button">
+        Submit Face Enrollment Consent
+      </button>
+    </section>
+
+    <!-- SUBJECT ATTENDANCE -->
+
+    <section class="attendance-card">
+      <h2>Subject-wise Attendance</h2>
+      <div id="subjectAttendance">
+        Loading subject attendance...
+      </div>
+    </section>
+
+    <!-- ATTENDANCE HISTORY -->
+
+    <section class="attendance-card">
+      <h2>Attendance History</h2>
+
+      <div class="attendance-table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Type</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody id="attendanceRecords">
+            <tr>
+              <td colspan="4">Loading records...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p id="attendanceMessage">
+        Attendance data is loading.
+      </p>
+    </section>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <footer>
+      CampusOS Student Portal
+    </footer>
+
+  </main>
+</div>
+
+<script type="module" src="student-attendance.js"></script>
+
+</body>
+</html>
+

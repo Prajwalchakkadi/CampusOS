@@ -2,54 +2,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CampusOS | Admin Dashboard</title>
-  <link rel="stylesheet" href="admin.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusOS | Admin Dashboard</title>
+    <link rel="stylesheet" href="admin.css">
+
+    <style>
+        .admin-section {
+            background: #fff;
+            padding: 22px;
+            margin: 25px 0;
+            border-radius: 12px;
+            box-shadow: 0 3px 14px rgba(0,0,0,0.08);
+        }
+
+        .admin-section input {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            margin: 10px 0 18px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+        }
+
+        .admin-section button {
+            background: #171717;
+            color: white;
+            padding: 12px 18px;
+            border: 0;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        .admin-section button:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+
+        #teacherMessage {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
 </head>
+
 <body>
 
-  <header class="header">
+<header class="header">
     <h1>CampusOS</h1>
     <p>College Administration Dashboard</p>
-  </header>
+</header>
 
-  <main class="container">
+<main class="container">
 
     <section class="welcome">
-      <h2>Welcome, Administrator!</h2>
-      <p>Manage student applications and campus activities.</p>
+        <h2>Welcome, Administrator!</h2>
+        <p>Manage student applications, teacher accounts and campus activities.</p>
     </section>
 
     <section class="stats">
-      <div class="card">
-        <h3>Pending Applications</h3>
-        <p id="pendingCount">0</p>
-      </div>
 
-      <div class="card">
-        <h3>Approved Students</h3>
-        <p id="approvedCount">0</p>
-      </div>
+        <div class="card">
+            <h3>Pending Applications</h3>
+            <p id="pendingCount">0</p>
+        </div>
 
-      <div class="card">
-        <h3>Rejected Applications</h3>
-        <p id="rejectedCount">0</p>
-      </div>
+        <div class="card">
+            <h3>Approved Students</h3>
+            <p id="approvedCount">0</p>
+        </div>
+
+        <div class="card">
+            <h3>Rejected Applications</h3>
+            <p id="rejectedCount">0</p>
+        </div>
+
     </section>
+
+    <!-- TEACHER ACCOUNT CREATION -->
+
+    <section class="admin-section">
+
+        <h2>Create Teacher Account</h2>
+
+        <p>
+            Create an official CampusOS account for a college teacher.
+            The teacher will receive an email to set their password.
+        </p>
+
+        <form id="teacherForm">
+
+            <label for="teacherName">Teacher Full Name</label>
+
+            <input
+                type="text"
+                id="teacherName"
+                placeholder="Enter teacher full name"
+                autocomplete="name"
+                required
+            >
+
+            <label for="teacherEmail">Official College Email</label>
+
+            <input
+                type="email"
+                id="teacherEmail"
+                placeholder="Enter teacher email"
+                autocomplete="email"
+                required
+            >
+
+            <button type="submit" id="createTeacherBtn">
+                Create Teacher Account
+            </button>
+
+        </form>
+
+        <p id="teacherMessage" role="status" aria-live="polite"></p>
+
+    </section>
+
+    <!-- EXISTING STUDENT APPLICATION MANAGEMENT -->
 
     <section class="applications">
-      <h2>Student Applications</h2>
 
-      <div id="applicationList">
-        Loading applications...
-      </div>
+        <h2>Student Applications</h2>
+
+        <div id="applicationList">
+            Loading applications...
+        </div>
+
+
     </section>
 
-  </main>
+    <!-- TEACHER-STUDENT ASSIGNMENT MANAGEMENT -->
+    <section class="admin-section">
+        <h2>Teacher–Student Assignment</h2>
+        <p>Assign approved students to their respective teachers.</p>
 
-  <script type="module" src="admin.js"></script>
+        <button type="button" id="loadAssignmentsBtn">
+            Load Teachers and Students
+        </button>
 
+        <form id="assignmentForm">
+
+            <label for="assignmentTeacher">Select Teacher</label>
+            <select id="assignmentTeacher" required>
+                <option value="">Select teacher</option>
+            </select>
+
+            <label for="assignmentStudent">Select Approved Student</label>
+            <select id="assignmentStudent" required>
+                <option value="">Select student</option>
+            </select>
+
+            <label for="assignmentClass">Class</label>
+            <input id="assignmentClass" placeholder="Example: CSE" required>
+
+            <label for="assignmentSection">Section</label>
+            <input id="assignmentSection" placeholder="Example: B" required>
+
+            <label for="assignmentSemester">Semester</label>
+            <input id="assignmentSemester" placeholder="Example: 1" required>
+
+            <label for="assignmentSubject">Subject</label>
+            <input id="assignmentSubject" placeholder="Example: Programming in C" required>
+
+            <button type="submit" id="assignStudentBtn">
+                Assign Student
+            </button>
+        </form>
+
+        <p id="assignmentMessage" role="status" aria-live="polite"></p>
+    </section>
+
+</main>
+
+<script type="module" src="admin.js"></script>
+<script type="module" src="assignment-admin.js"></script>
 </body>
 </html>
+
 

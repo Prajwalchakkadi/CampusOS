@@ -1,121 +1,514 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CampusOS | Student Dashboard</title>
+  <meta name="theme-color" content="#2563eb">
+  <title>CampusOS | Student Portal</title>
   <link rel="stylesheet" href="student-dashboard.css">
 </head>
 
 <body>
 
-<header class="header">
-  <h2>CampusOS</h2>
-  <button id="logoutBtn">Logout</button>
-</header>
+  <aside class="sidebar" id="sidebar">
 
-<main class="container">
+    <a class="brand" href="#home">
+      <span class="brand-mark">C</span>
+      <span>CampusOS</span>
+    </a>
 
-  <h1>Student Dashboard</h1>
-  <p>Welcome to your CampusOS student portal.</p>
+    <p class="nav-label">WORKSPACE</p>
 
-  <section class="profile">
-    <h2>Student Information</h2>
-    <p><strong>Student ID:</strong> <span id="studentId">Loading...</span></p>
-    <p><strong>Email:</strong> <span id="studentEmail">Loading...</span></p>
-    <p><strong>Role:</strong> <span id="studentRole">Loading...</span></p>
-    <p id="status">Connecting to CampusOS server...</p>
-  </section>
+    <nav class="nav">
+      <a class="nav-link active" href="#home">⌂ Overview</a>
+      <a class="nav-link" href="#academics">▤ Academics</a>
+      <a class="nav-link" href="#attendance">◷ Attendance</a>
+      <a class="nav-link" href="#planner">✓ Study Planner</a>
+      <a class="nav-link" href="#learning">▣ Learning Hub</a>
+      <a class="nav-link" href="#career">↗ Career & Placement</a>
+      <a class="nav-link" href="#services">⌖ Campus Services</a>
+    </nav>
 
-  <section class="face-section">
-    <h2>Face Enrollment</h2>
+    <div class="sidebar-bottom">
+      <div class="help-card">
+        <strong>Need help?</strong>
+        <p>Campus support modules will be connected here.</p>
+      </div>
 
-    <p>
-      Use your front camera to preview your face before enrollment.
-      Camera preview alone does not verify your identity.
-    </p>
-
-    <video
-      id="faceVideo"
-      autoplay
-      muted
-      playsinline
-      width="320"
-      height="240">
-    </video>
-
-    <div>
-      <button type="button" id="startCameraBtn">Start Camera</button>
-      <button type="button" id="stopCameraBtn">Stop Camera</button>
+      <button class="logout-btn" id="logoutBtn" type="button">
+        ↪ Log out
+      </button>
     </div>
 
-    <div class="consent">
-      <label>
-        <input type="checkbox" id="faceConsent">
-        I voluntarily consent to face enrollment for CampusOS attendance.
-        I understand that secure face verification is not yet active.
-      </label>
-    </div>
+  </aside>
 
-    <button type="button" id="enrollFaceBtn">
-      Submit Enrollment Consent
+  <main class="main-area" id="home">
+
+    <header class="topbar">
+
+      <button class="mobile-menu" id="menuBtn" type="button">
+        ☰
+      </button>
+
+      <div class="breadcrumb">
+        Student Portal / Overview
+      </div>
+
+      <div class="topbar-right">
+        <span class="live-dot"></span>
+        <span id="connectionLabel">Connecting</span>
+        <div class="avatar" id="avatarInitial">S</div>
+      </div>
+
+    </header>
+
+    <div class="page-content">
+
+      <section class="welcome-row">
+        <div>
+          <p class="eyebrow" id="todayLabel">STUDENT WORKSPACE</p>
+
+          <h1>
+            Good to see you,
+            <span id="welcomeName">Student</span> 👋
+          </h1>
+
+          <p class="muted">
+            Here's your academic snapshot and student workspace.
+          </p>
+        </div>
+      </section>
+
+      <!-- STUDENT PROFILE -->
+
+      <section class="profile-strip panel">
+
+        <div class="profile-main">
+
+          <div class="profile-avatar" id="profileInitial">S</div>
+
+          <div>
+            <p class="eyebrow">STUDENT PROFILE</p>
+            <h2 id="profileName">Loading profile...</h2>
+
+            <p class="muted" id="profileSubline">
+              Your account information
+            </p>
+          </div>
+
+        </div>
+
+        <div class="profile-details">
+
+          <div>
+            <span>Student ID</span>
+            <strong id="studentId">Loading...</strong>
+          </div>
+
+          <div>
+            <span>Email address</span>
+            <strong id="studentEmail">Loading...</strong>
+          </div>
+
+          <div>
+            <span>Role</span>
+            <strong id="studentRole">Student</strong>
+          </div>
+
+          <div>
+            <span>Registration No.</span>
+            <strong id="registrationNumber">Not provided</strong>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ATTENDANCE CARDS -->
+
+      <section class="stats-grid">
+
+        <article class="stat-card">
+          <div class="stat-caption">ATTENDANCE</div>
+          <div class="stat-value" id="attendancePercentage">—</div>
+          <p class="stat-foot">Overall attendance</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-caption">TOTAL CLASSES</div>
+          <div class="stat-value" id="totalClasses">—</div>
+          <p class="stat-foot">Recorded classes</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-caption">PRESENT</div>
+          <div class="stat-value" id="presentClasses">—</div>
+          <p class="stat-foot">Classes attended</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-caption">ABSENT</div>
+          <div class="stat-value" id="absentClasses">—</div>
+          <p class="stat-foot">Classes missed</p>
+        </article>
+
+      </section>
+
+      <!-- ATTENDANCE DETAILS -->
+
+      <section class="content-grid">
+
+        <article class="panel attendance-panel" id="attendance">
+
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">ACADEMIC TRACKER</p>
+              <h2>Attendance Overview</h2>
+            </div>
+          </div>
+
+          <div class="attendance-visual">
+
+            <div class="ring" id="attendanceRing">
+              <div>
+                <strong id="ringValue">—</strong>
+                <span>Attendance</span>
+              </div>
+            </div>
+
+            <div class="ring-legend">
+              <p>Present <strong id="legendPresent">0</strong></p>
+              <p>Absent <strong id="legendAbsent">0</strong></p>
+            </div>
+
+          </div>
+
+          <div class="section-heading compact" id="academics">
+            <h3>Subject-wise Attendance</h3>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Subject</th>
+                  <th>Present / Total</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+
+              <tbody id="subjectAttendance">
+                <tr>
+                  <td colspan="3">Loading attendance...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section-heading compact">
+            <h3>Lecture and Lab Records</h3>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Subject</th>
+                  <th>Type</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+
+              <tbody id="attendanceRecords">
+                <tr>
+                  <td colspan="4">Loading records...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="data-note" id="attendanceMessage">
+            Attendance data is loading.
+          </p>
+
+        </article>
+
+        <!-- RIGHT COLUMN -->
+
+        <div class="right-column">
+
+<!-- STUDENT QR ATTENDANCE -->
+
+<article class="panel qr-scanner-panel">
+
+  <div class="section-heading">
+    <h2>QR Attendance Scanner</h2>
+  </div>
+
+  <p class="muted">
+    Scan the active classroom QR code provided by your teacher.
+  </p>
+
+  <video
+    id="qrVideo"
+    autoplay
+    muted
+    playsinline
+    style="width:100%;max-width:400px;border-radius:12px;display:none;">
+  </video>
+
+  <div class="button-row">
+    <button
+      class="button primary"
+      id="startQRScannerBtn"
+      type="button">
+      Start QR Scanner
     </button>
 
-    <p id="faceMessage">Checking enrollment status...</p>
-  </section>
+    <button
+      class="button secondary"
+      id="stopQRScannerBtn"
+      type="button">
+      Stop Scanner
+    </button>
+  </div>
 
-  <section class="features">
-    <h2>Student Services</h2>
-    <div class="feature-card">Attendance</div>
-    <div class="feature-card">Timetable</div>
-    <div class="feature-card">Assignments</div>
-    <div class="feature-card">Exam Results</div>
-    <div class="feature-card">Campus Map</div>
-    <div class="feature-card">Announcements</div>
-  </section>
+  <p id="qrScanMessage" class="data-note" aria-live="polite">
+    Scanner is ready.
+  </p>
 
-  <section class="attendance-section">
-    <h2>My Attendance</h2>
+</article>
 
-    <div class="attendance-summary">
-      <h3>Overall Attendance</h3>
-      <h1 id="attendancePercentage">Loading...</h1>
+          <!-- FACE ENROLLMENT -->
 
-      <p>Total Classes: <span id="totalClasses">0</span></p>
-      <p>Present Classes: <span id="presentClasses">0</span></p>
-      <p>Absent Classes: <span id="absentClasses">0</span></p>
+          <article class="panel face-panel">
+
+            <div class="section-heading">
+              <h2>Face Enrollment</h2>
+            </div>
+
+            <p class="muted">
+              Camera preview alone does not verify your identity.
+            </p>
+
+            <div class="face-status" id="faceMessage">
+              Checking enrollment status...
+            </div>
+
+            <video
+              id="faceVideo"
+              autoplay
+              muted
+              playsinline>
+            </video>
+
+            <div class="button-row">
+
+              <button
+                class="button secondary"
+                id="startCameraBtn"
+                type="button">
+                Start Camera
+              </button>
+
+              <button
+                class="button secondary"
+                id="stopCameraBtn"
+                type="button">
+                Stop
+              </button>
+
+            </div>
+
+            <label class="consent-label">
+
+              <input type="checkbox" id="faceConsent">
+
+              I voluntarily consent to face enrollment. I understand
+              that secure face verification is not active until the
+              provider is connected.
+
+            </label>
+
+            <button
+              class="button primary full"
+              id="enrollFaceBtn"
+              type="button">
+              Submit Consent
+            </button>
+
+          </article>
+
+          <!-- STUDY TIMER -->
+
+          <article class="panel planner-panel" id="planner">
+
+            <div class="section-heading">
+              <h2>Study Timer</h2>
+            </div>
+
+            <div class="timer-display" id="timerDisplay">
+              25:00
+            </div>
+
+            <p class="muted center" id="timerStatus">
+              Start your focused study session.
+            </p>
+
+            <div class="button-row">
+
+              <button
+                class="button primary"
+                id="timerStartBtn"
+                type="button">
+                Start
+              </button>
+
+              <button
+                class="button secondary"
+                id="timerResetBtn"
+                type="button">
+                Reset
+              </button>
+
+            </div>
+
+            <div class="task-area">
+
+              <label class="eyebrow" for="taskInput">
+                TODAY'S TASKS
+              </label>
+
+              <div class="task-entry">
+
+                <input
+                  id="taskInput"
+                  type="text"
+                  maxlength="100"
+                  placeholder="Add a study task...">
+
+                <button id="addTaskBtn" type="button">+</button>
+
+              </div>
+
+              <ul class="task-list" id="taskList"></ul>
+
+            </div>
+
+          </article>
+
+        </div>
+
+      </section>
+
+<!-- CAMPUSOS AI STUDENT ASSISTANT -->
+<section class="module-section" id="aiAssistant">
+
+    <div class="section-heading">
+        <h2>CampusOS AI Assistant</h2>
+        <p>Your personal learning assistant for every subject.</p>
     </div>
 
-    <h3>Subject-wise Attendance</h3>
-    <table border="1" cellpadding="10">
-      <thead>
-        <tr>
-          <th>Subject</th>
-          <th>Present / Total</th>
-          <th>Percentage</th>
-        </tr>
-      </thead>
-      <tbody id="subjectAttendance"></tbody>
-    </table>
+    <div class="ai-chat-container">
 
-    <h3>Lecture and Lab Attendance Records</h3>
-    <table border="1" cellpadding="10">
-      <thead>
-        <tr>
-          <th>Subject</th>
-          <th>Class Type</th>
-          <th>Date</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="attendanceRecords"></tbody>
-    </table>
-  </section>
+        <div class="ai-chat-header">
+            <div>
+                <h3>✨ CampusOS AI</h3>
+                <p>Ask questions. Learn. Improve.</p>
+            </div>
+            <span class="ai-online">AI Assistant</span>
+        </div>
 
-</main>
+        <div id="aiMessages" class="ai-messages">
+            <div class="ai-message ai-bot-message">
+                Hello! 👋 Welcome to CampusOS AI.
 
-<script type="module" src="student-dashboard.js"></script>
+                Ask me about C programming, mathematics,
+                engineering subjects, coding or general knowledge.
+            </div>
+        </div>
+
+        <div id="aiStatus" class="ai-status"></div>
+
+        <div class="ai-input-area">
+            <textarea
+                id="aiInput"
+                placeholder="Ask your question..."
+                rows="2"
+                maxlength="4000"
+            ></textarea>
+
+            <button id="aiSendBtn" type="button">
+                Send ➤
+            </button>
+        </div>
+
+    </div>
+</section>
+<!-- END CAMPUSOS AI ASSISTANT -->
+
+      <!-- OTHER MODULES -->
+
+      <section class="module-section" id="learning">
+
+        <div class="section-heading">
+          <h2>Explore Your Workspace</h2>
+        </div>
+
+        <div class="module-grid">
+
+          <article class="module-card">
+            <h3>Timetable</h3>
+            <p>View your daily class schedule.</p>
+            <span>Backend connection pending</span>
+          </article>
+
+          <article class="module-card">
+            <h3>Assignments</h3>
+            <p>Track assignments and submissions.</p>
+            <span>Backend connection pending</span>
+          </article>
+
+          <article class="module-card">
+            <h3>Exam Results</h3>
+            <p>View internal and semester results.</p>
+            <span>Backend connection pending</span>
+          </article>
+
+          <article class="module-card">
+            <h3>Learning Resources</h3>
+            <p>Organize notes, PDFs and links.</p>
+            <span>Planned module</span>
+          </article>
+
+          <article class="module-card" id="career">
+            <h3>Career & Placement</h3>
+            <p>Build skills, projects and placement readiness.</p>
+            <span>Planned module</span>
+          </article>
+
+          <article class="module-card" id="services">
+            <h3>Campus Services</h3>
+            <p>Campus map, events and student services.</p>
+            <span>Planned module</span>
+          </article>
+
+        </div>
+
+      </section>
+
+      <footer class="footer">
+        © 2026 CampusOS — Student Portal
+      </footer>
+
+    </div>
+
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module" src="student-dashboard.js"></script>
 
 </body>
 </html>

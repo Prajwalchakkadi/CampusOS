@@ -1,5 +1,4 @@
 
-
 import { auth } from "./firebase.js";
 
 import {
@@ -7,151 +6,204 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
 
-// HTML ELEMENTS
+// LOGIN ELEMENTS
 const loginForm = document.getElementById("loginForm");
 const message = document.getElementById("message");
-const loginButton = loginForm.querySelector('button[type="submit"]');
 const forgotPassword = document.getElementById("forgotPassword");
 
-// FIREBASE ERROR HANDLER
+const loginButton = loginForm?.querySelector(
+  'button[type="submit"]'
+);
+
+if (!loginForm || !message) {
+  throw new Error(
+    "CampusOS login form or message element not found."
+  );
+}
+
+// DISPLAY MESSAGE
+function showMessage(text) {
+  message.textContent = text;
+}
+
+// SAVE USER SESSION
+function saveSession(token, user) {
+  sessionStorage.setItem("token", token);
+  sessionStorage.setItem("userEmail", user.email || "");
+  sessionStorage.setItem("userRole", user.role || "");
+  sessionStorage.setItem("userName", user.name || "");
+  sessionStorage.setItem("user", JSON.stringify(user));
+
+  if (user.uid) {
+    sessionStorage.setItem("userUid", user.uid);
+  }
+}
+
+// REDIRECT USER
+function redirectUser(role) {
+  const dashboards = {
+    Student: "student-dashboard.html",
+    Teacher: "teacher-dashboard.html",
+    Parent: "parent-dashboard.html",
+    Administrator: "admin.html",
+    Warden: "warden-dashboard.html"
+  };
+
+  const destination = dashboards[role];
+
+  if (!destination) {
+    showMessage("Dashboard is not configured for this role.");
+    return;
+  }
+
+  window.location.href = destination;
+}
+
+// FIREBASE ERROR MESSAGES
 function getFirebaseErrorMessage(error) {
   switch (error.code) {
     case "auth/invalid-credential":
-      return "Invalid email or password. Check your login details.";
+    case "auth/wrong-password":
+      return "Invalid email or password.";
 
     case "auth/user-not-found":
       return "No Firebase account found with this email.";
-
-    case "auth/wrong-password":
-      return "Incorrect password. Please check your password.";
 
     case "auth/invalid-email":
       return "Please enter a valid email address.";
 
     case "auth/too-many-requests":
-      return "Too many login attempts. Please wait before trying again.";
+      return "Too many attempts. Please try again later.";
 
     case "auth/network-request-failed":
       return "Network error. Check your internet connection.";
 
     case "auth/user-disabled":
-      return "This account has been disabled. Contact your administrator.";
-
-    case "auth/operation-not-allowed":
-      return "Email and password login is not enabled in Firebase.";
+      return "This account is disabled.";
 
     default:
-      return `Error code: ${error.code || "unknown"} | ${error.message}`;
+      return error.message || "Firebase login failed.";
   }
 }
 
-// LOGIN
+// VERIFY FIREBASE ROLE
+function verifyUserRole(role, claims) {
+  if (role === "Administrator") {
+    return (
+      claims.admin === true ||
+      claims.role === "Administrator"
+    );
+  }
+
+  return claims.role === role;
+}
+
+// REAL FIREBASE LOGIN
+async function firebaseLogin(email, password, role) {
+  const result = await signInWithEmailAndPassword(
+    auth,
+    email,
+    password
+  );
+
+  const firebaseUser = result.user;
+
+  // Force refresh to obtain the latest custom claims.
+  const tokenResult = await firebaseUser.getIdTokenResult(true);
+
+  const claims = tokenResult.claims;
+
+  if (!verifyUserRole(role, claims)) {
+    await signOut(auth);
+
+    throw new Error(
+      `Your Firebase account does not have the ${role} role.`
+    );
+  }
+
+  return {
+    token: tokenResult.token,
+
+    user: {
+      uid: firebaseUser.uid,
+      name: firebaseUser.displayName || email,
+      email: firebaseUser.email || email,
+      role: role
+    }
+  };
+}
+
+// MAIN LOGIN
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
-  const role = document.getElementById("role").value;
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+  const role = document.getElementById("role")?.value;
+
+  const email = document.getElementById("email")?.value
+    ?.trim()
+    .toLowerCase();
+
+  const password = document.getElementById("password")?.value;
 
   if (!role || !email || !password) {
-    message.textContent = "Please fill in all fields.";
+    showMessage("Please fill in all fields.");
     return;
   }
 
-  loginButton.disabled = true;
-  loginButton.textContent = "Logging in...";
-  message.textContent = "Connecting to Firebase...";
+  if (loginButton) {
+    loginButton.disabled = true;
+    loginButton.textContent = "Logging in...";
+  }
+
+  showMessage("Checking Firebase account...");
 
   try {
-    // STEP 1: FIREBASE LOGIN
-    const result = await signInWithEmailAndPassword(
-      auth,
+    const firebase = await firebaseLogin(
       email,
-      password
+      password,
+      role
     );
 
-    console.log("Firebase login successful.");
-    console.log("User UID:", result.user.uid);
-    console.log("User email:", result.user.email);
+    saveSession(firebase.token, firebase.user);
 
-    message.textContent = "Checking account permissions...";
+    showMessage("Firebase login successful!");
 
-    // STEP 2: CHECK FIREBASE ROLE CLAIMS
-    const tokenResult = await result.user.getIdTokenResult(true);
-    const claims = tokenResult.claims;
-
-    console.log("FIREBASE ROLE CLAIMS:", claims);
-
-    let roleValid = false;
-
-    if (role === "Student" && claims.role === "Student") {
-      roleValid = true;
-    }
-
-    if (role === "Administrator" && claims.admin === true) {
-      roleValid = true;
-    }
-
-    if (role === "Teacher" && claims.role === "Teacher") {
-      roleValid = true;
-    }
-
-    if (role === "Parent" && claims.role === "Parent") {
-      roleValid = true;
-    }
-
-    if (role === "Warden" && claims.role === "Warden") {
-      roleValid = true;
-    }
-
-    if (!roleValid) {
-      await signOut(auth);
-      throw new Error(
-        `Your Firebase account does not have the required ${role} role. Contact your administrator.`
-      );
-    }
-
-    // STEP 3: GET FIREBASE TOKEN
-    const idToken = await result.user.getIdToken(true);
-
-    // STEP 4: SAVE SESSION
-    sessionStorage.setItem("token", idToken);
-    sessionStorage.setItem("userEmail", result.user.email);
-    sessionStorage.setItem("userRole", role);
-    sessionStorage.setItem("userUid", result.user.uid);
-
-    message.textContent = "Login successful!";
-
-    // STEP 5: ROLE-BASED REDIRECT
-    if (role === "Student") {
-      window.location.href = "student-dashboard.html";
-      return;
-    }
-
-    if (role === "Administrator") {
-      window.location.href = "admin.html";
-      return;
-    }
-
-    message.textContent =
-      `Login successful as ${role}. Dashboard setup is pending.`;
+    redirectUser(firebase.user.role);
 
   } catch (error) {
-    console.error("CAMPUSOS LOGIN ERROR:", error);
+    console.error("CampusOS login error:", error);
 
-    message.textContent = getFirebaseErrorMessage(error);
+    showMessage(
+      error.code
+        ? getFirebaseErrorMessage(error)
+        : error.message || "Login failed."
+    );
+
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("userEmail");
+    sessionStorage.removeItem("userRole");
+    sessionStorage.removeItem("userName");
+    sessionStorage.removeItem("userUid");
+    sessionStorage.removeItem("user");
 
   } finally {
-    loginButton.disabled = false;
-    loginButton.textContent = "Login";
+    if (loginButton) {
+      loginButton.disabled = false;
+      loginButton.textContent = "Login";
+    }
   }
 });
 
 // FORGOT PASSWORD
-forgotPassword.addEventListener("click", (event) => {
-  event.preventDefault();
+if (forgotPassword) {
+  forgotPassword.addEventListener("click", (event) => {
+    event.preventDefault();
 
-  message.textContent =
-    "Please contact your college administrator to reset your password.";
-});
+    showMessage(
+      "Contact your administrator to reset your password."
+    );
+  });
+}
+
+console.log("CampusOS Firebase login system loaded.");
 

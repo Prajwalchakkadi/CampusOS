@@ -1,3 +1,4 @@
+const API_URL = window.location.origin;
 const token = sessionStorage.getItem("token");
 
 const statusMessage = document.getElementById("status");
@@ -5,23 +6,20 @@ const sessionMessage = document.getElementById("sessionMessage");
 
 let countdownInterval = null;
 
-// CHECK TEACHER LOGIN
 if (!token) {
     alert("Please login as a teacher first!");
     window.location.href = "index.html";
 }
 
-// LOAD TEACHER INFORMATION AND SESSIONS
+// LOAD TEACHER DASHBOARD
 async function loadTeacherDashboard() {
-
     try {
-
         const response = await fetch(
-            "http://localhost:5000/api/teacher/sessions",
+            `${API_URL}/api/teacher/sessions`,
             {
                 method: "GET",
                 headers: {
-                    "Authorization": `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 }
             }
         );
@@ -32,31 +30,33 @@ async function loadTeacherDashboard() {
             throw new Error(data.message || "Unable to load sessions");
         }
 
-        document.getElementById("teacherName").textContent =
-            sessionStorage.getItem("userName") || "Demo Teacher";
+        const teacherName =
+            sessionStorage.getItem("userName") || "Teacher";
+
+        document.getElementById("teacherName").textContent = teacherName;
+        document.getElementById("welcomeName").textContent =
+            teacherName.split(" ")[0];
 
         document.getElementById("teacherEmail").textContent =
-            sessionStorage.getItem("userEmail") || "teacher@campusos.test";
+            sessionStorage.getItem("userEmail") || "Not available";
 
         document.getElementById("teacherRole").textContent = "Teacher";
 
-        statusMessage.textContent =
-            "Connected successfully to CampusOS!";
+        statusMessage.textContent = "Connected successfully";
 
-        displaySessions(data.sessions);
+        displaySessions(data.sessions || []);
 
     } catch (error) {
-
-        statusMessage.textContent = error.message;
+        statusMessage.textContent = "Connection error";
         console.error(error);
-
+        document.getElementById("sessionsList").textContent =
+            error.message;
     }
 }
 
 // CREATE ATTENDANCE SESSION
 document.getElementById("sessionForm")
 .addEventListener("submit", async function(event) {
-
     event.preventDefault();
 
     const subject =
@@ -71,16 +71,17 @@ document.getElementById("sessionForm")
     const createBtn = document.getElementById("createBtn");
 
     createBtn.disabled = true;
-    createBtn.textContent = "Creating...";
+    createBtn.textContent = "GENERATING QR...";
+
+    sessionMessage.textContent = "";
 
     try {
-
         const response = await fetch(
-            "http://localhost:5000/api/teacher/sessions",
+            `${API_URL}/api/teacher/sessions`,
             {
                 method: "POST",
                 headers: {
-                    "Authorization": `Bearer ${token}`,
+                    Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
@@ -98,78 +99,113 @@ document.getElementById("sessionForm")
         }
 
         sessionMessage.textContent =
-            "Attendance session created successfully!";
+            "✓ Attendance session created successfully!";
 
         document.getElementById("sessionForm").reset();
 
-        // Reload sessions to display the generated QR code
         await loadTeacherDashboard();
 
     } catch (error) {
-
         sessionMessage.textContent = error.message;
         console.error(error);
 
     } finally {
-
         createBtn.disabled = false;
-        createBtn.textContent = "Create Attendance Session";
-
+        createBtn.innerHTML = "<span>＋</span> GENERATE ATTENDANCE QR";
     }
-
 });
 
-// DISPLAY SESSIONS AND QR CODES
+// DISPLAY SESSIONS
 function displaySessions(sessions) {
-
-    const sessionsList =
-        document.getElementById("sessionsList");
+    const sessionsList = document.getElementById("sessionsList");
 
     sessionsList.innerHTML = "";
 
     if (countdownInterval) {
         clearInterval(countdownInterval);
+        countdownInterval = null;
     }
 
-    if (!sessions || sessions.length === 0) {
+    const totalSessions = sessions.length;
 
-        sessionsList.textContent =
-            "No attendance sessions created yet.";
+    const activeSessions = sessions.filter(
+        session => session.status === "Active"
+    ).length;
 
+    const studentsVerified = sessions.reduce(
+        (total, session) =>
+            total + Number(session.attendanceCount || 0),
+        0
+    );
+
+    document.getElementById("totalSessions").textContent =
+        totalSessions;
+
+    document.getElementById("activeSessions").textContent =
+        activeSessions;
+
+    document.getElementById("studentsVerified").textContent =
+        studentsVerified;
+
+    if (sessions.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent =
+            "No sessions yet. Create your first lecture or lab session.";
+        sessionsList.appendChild(empty);
         return;
     }
 
-    sessions.forEach(session => {
+    // Newest sessions first
+    sessions = [...sessions].reverse();
 
-        const card = document.createElement("div");
+    sessions.forEach(session => {
+        const card = document.createElement("article");
         card.className = "session-card";
 
         const title = document.createElement("h3");
-        title.textContent = session.subject || "Unknown Subject";
+        title.textContent = session.subject || "Untitled Subject";
 
         const type = document.createElement("p");
-        type.textContent = "Class Type: " + session.classType;
+        type.textContent = `Class Type: ${session.classType || "Unknown"}`;
 
         const room = document.createElement("p");
-        room.textContent = "Classroom: " + session.classroom;
+        room.textContent = `Classroom: ${session.classroom || "Not specified"}`;
 
-        const code = document.createElement("p");
-        code.textContent = "Session Code: " + session.sessionCode;
+        const created = document.createElement("p");
+        created.textContent =
+            `Created: ${formatDate(session.createdAt)}`;
 
-        const status = document.createElement("p");
-        status.textContent = "Status: " + (session.status || "Unknown");
+        const status = document.createElement("span");
+        status.className = "session-status";
+
+        const isExpired =
+            !session.expiresAt ||
+            Date.now() >= new Date(session.expiresAt).getTime();
+
+        status.textContent = isExpired ? "EXPIRED" : "ACTIVE";
+
+        if (isExpired) {
+            status.classList.add("expired");
+        }
 
         const attendance = document.createElement("p");
         attendance.textContent =
-            "Students Present: " + (session.attendanceCount || 0);
+            `Students scanned: ${Number(session.attendanceCount || 0)}`;
 
-        card.append(title, type, room, code, status, attendance);
+        card.append(
+            title,
+            type,
+            room,
+            created,
+            status,
+            attendance
+        );
 
-        // QR CODE DISPLAY
         if (session.qrCodeDataUrl) {
-
-            const qrHeading = document.createElement("h3");
-            qrHeading.textContent = "Student Attendance QR Code";
+            const qrHeading = document.createElement("div");
+            qrHeading.className = "qr-heading";
+            qrHeading.textContent = "STUDENT ATTENDANCE QR";
 
             const qrImage = document.createElement("img");
             qrImage.src = session.qrCodeDataUrl;
@@ -178,95 +214,156 @@ function displaySessions(sessions) {
 
             const countdown = document.createElement("p");
             countdown.className = "qr-countdown";
-
             countdown.dataset.expiry = session.expiresAt || "";
 
             card.append(qrHeading, qrImage, countdown);
-
         } else {
-
             const noQR = document.createElement("p");
-            noQR.textContent = "QR code is not available for this session.";
+            noQR.textContent = "QR code is not available.";
             card.appendChild(noQR);
-
         }
 
         sessionsList.appendChild(card);
-
     });
 
-    // Start QR expiry countdown
     updateCountdowns();
-
     countdownInterval = setInterval(updateCountdowns, 1000);
-
 }
 
-// UPDATE QR COUNTDOWN
+// FORMAT DATE
+function formatDate(value) {
+    if (!value) return "Not available";
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "Not available";
+    }
+
+    return date.toLocaleString();
+}
+
+// UPDATE QR EXPIRY COUNTDOWN
 function updateCountdowns() {
+    document.querySelectorAll(".qr-countdown").forEach(countdown => {
+        const expiry = new Date(countdown.dataset.expiry).getTime();
 
-    const countdowns =
-        document.querySelectorAll(".qr-countdown");
-
-    countdowns.forEach(countdown => {
-
-        const expiryValue = countdown.dataset.expiry;
-
-        if (!expiryValue) {
-            countdown.textContent = "Expiry time unavailable.";
+        if (!Number.isFinite(expiry)) {
+            countdown.textContent = "Expiry unavailable";
             return;
         }
 
-        const expiryTime = new Date(expiryValue).getTime();
-        const currentTime = Date.now();
+        const remaining = expiry - Date.now();
 
-        const remainingTime = expiryTime - currentTime;
-
-        if (isNaN(expiryTime)) {
-            countdown.textContent = "Invalid expiry time.";
-            return;
-        }
-
-        if (remainingTime <= 0) {
-
-            countdown.textContent =
-                "QR Code Expired! Create a new attendance session.";
-
+        if (remaining <= 0) {
+            countdown.textContent = "QR EXPIRED — CREATE A NEW SESSION";
             countdown.classList.add("expired");
             return;
         }
 
-        const minutes = Math.floor(remainingTime / 60000);
-
-        const seconds = Math.floor((remainingTime % 60000) / 1000);
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
 
         countdown.textContent =
-            `QR expires in: ${minutes}:${String(seconds).padStart(2, "0")}`;
+            `QR EXPIRES IN ${minutes}:${String(seconds).padStart(2, "0")}`;
 
         countdown.classList.remove("expired");
-
     });
-
 }
 
-// REFRESH SESSIONS
+// REFRESH
 document.getElementById("refreshBtn")
 .addEventListener("click", loadTeacherDashboard);
 
 // LOGOUT
 document.getElementById("logoutBtn")
 .addEventListener("click", () => {
-
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("user");
     sessionStorage.removeItem("userName");
     sessionStorage.removeItem("userEmail");
+    sessionStorage.removeItem("userRole");
 
     window.location.href = "index.html";
-
 });
+// LOAD TEACHER'S ASSIGNED STUDENTS
+async function loadAssignedStudents() {
+    const status = document.getElementById("assignmentStatus");
+    const list = document.getElementById("assignedStudentsList");
+    const refresh = document.getElementById("refreshAssignmentsBtn");
+
+    if (!status || !list || !token) return;
+
+    refresh.disabled = true;
+    status.textContent = "Loading assigned students...";
+    list.textContent = "";
+
+    try {
+        const response = await fetch(
+            `${API_URL}/api/teacher/assignments`,
+            {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Unable to load students.");
+        }
+
+        const assignments = data.assignments || [];
+
+        status.textContent =
+            `${assignments.length} assignment(s) found.`;
+
+        if (assignments.length === 0) {
+            list.textContent = "No students assigned yet.";
+            return;
+        }
+
+        assignments.forEach(assignment => {
+            const card = document.createElement("article");
+            card.className = "session-card";
+
+            const title = document.createElement("h3");
+            title.textContent = assignment.studentName || "Student";
+
+            const email = document.createElement("p");
+            email.textContent =
+                `Email: ${assignment.studentEmail || "Not available"}`;
+
+            const subject = document.createElement("p");
+            subject.textContent =
+                `Subject: ${assignment.subject || "Not specified"}`;
+
+            const classInfo = document.createElement("p");
+            classInfo.textContent =
+                `Class: ${assignment.className || "-"} | Section: ${assignment.section || "-"} | Semester: ${assignment.semester || "-"}`;
+
+            card.append(title, email, subject, classInfo);
+            list.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error("Assigned students error:", error);
+        status.textContent = error.message;
+        list.textContent = "Could not load assigned students.";
+    } finally {
+        refresh.disabled = false;
+    }
+}
+
+// REFRESH ASSIGNED STUDENTS
+document.getElementById("refreshAssignmentsBtn")
+    ?.addEventListener("click", loadAssignedStudents);
 
 // INITIAL LOAD
 if (token) {
     loadTeacherDashboard();
+    loadAssignedStudents();
 }
+
