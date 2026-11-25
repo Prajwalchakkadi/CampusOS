@@ -84,6 +84,32 @@ async function authenticateStudent(req, res, next) {
     }
 }
 
+// GEMINI AUTOMATIC RETRY
+async function generateWithRetry(ai, request) {
+    const maxAttempts = 3;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+            return await ai.models.generateContent(request);
+        } catch (error) {
+            const status = Number(error.status || error.code || 0);
+            const temporary = [429, 500, 503].includes(status);
+
+            if (!temporary || attempt === maxAttempts) {
+                throw error;
+            }
+
+            const delay = attempt * 2000;
+
+            console.log(
+                `CampusOS AI: temporary Gemini error (${status}). Retrying in ${delay / 1000}s. Attempt ${attempt + 1}/${maxAttempts}.`
+            );
+
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+    }
+}
+
 // CAMPUSOS AI ASSISTANT
 router.post(
     "/student/ai/chat",
@@ -108,7 +134,7 @@ router.post(
 
             const ai = await getAIClient();
 
-            const response = await ai.models.generateContent({
+            const response = await generateWithRetry(ai, {
                 model: "gemini-3.8-flash",
                 contents: message,
                 config: {
@@ -138,6 +164,15 @@ router.post(
 
         } catch (error) {
             console.error("CampusOS AI error:", error.message);
+
+            const status = Number(error.status || error.code || 0);
+
+            if ([429, 500, 503].includes(status)) {
+                return res.status(503).json({
+                    success: false,
+                    message: "Gemini AI is currently busy. Please try again in a little while."
+                });
+            }
 
             return res.status(500).json({
                 success: false,

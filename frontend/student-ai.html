@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusOS | AI Assistant</title>
+    <link rel="stylesheet" href="student-ai.css">
+</head>
+<body>
+<div class="app">
+
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-icon">C</div>
+            <div>
+                <h2>CampusOS</h2>
+                <span>STUDENT INTELLIGENCE</span>
+            </div>
+        </div>
+
+        <a class="back-link" href="student-home.html">← Back to Student Home</a>
+
+        <button class="new-chat" id="newChatBtn">＋ New conversation</button>
+
+        <div class="side-heading">AI ASSISTANT</div>
+        <div class="side-info">
+            <span class="online-dot"></span>
+            Gemini AI connected through CampusOS
+        </div>
+
+        <div class="side-heading">QUICK MODES</div>
+        <button class="mode-side active" data-mode="General">✦ General Assistant</button>
+        <button class="mode-side" data-mode="Study">📚 Study Mode</button>
+        <button class="mode-side" data-mode="Programming">💻 Programming Help</button>
+        <button class="mode-side" data-mode="Exam">🎯 Exam Preparation</button>
+        <button class="mode-side" data-mode="Notes">📝 Notes Generator</button>
+
+        <div class="sidebar-bottom">
+            <button id="clearHistoryBtn" class="clear-btn">🗑 Clear conversation history</button>
+            <a href="student-home.html">⌂ Student Dashboard</a>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <button class="menu-btn" id="menuBtn">☰</button>
+            <div>
+                <h3>AI Learning Assistant</h3>
+                <span class="status"><span class="online-dot"></span> Ready to help you learn</span>
+            </div>
+            <div class="top-avatar">AI</div>
+        </header>
+
+        <section class="chat-area" id="chatArea">
+            <div class="welcome" id="welcomeScreen">
+                <div class="ai-orb">✦</div>
+                <span class="eyebrow">YOUR CAMPUSOS LEARNING PARTNER</span>
+                <h1>What are we <span>learning</span> today?</h1>
+                <p>Ask questions, understand difficult concepts, practise programming and prepare for your exams.</p>
+
+                <div class="suggestions">
+                    <button class="suggestion" data-prompt="Explain C programming basics with simple examples.">
+                        <span>💻</span>
+                        <strong>Learn C programming</strong>
+                        <small>Understand concepts with examples</small>
+                    </button>
+                    <button class="suggestion" data-prompt="Help me prepare a study plan for my engineering exams.">
+                        <span>🎯</span>
+                        <strong>Prepare for exams</strong>
+                        <small>Create a revision strategy</small>
+                    </button>
+                    <button class="suggestion" data-prompt="Explain matrices and Gaussian elimination step by step.">
+                        <span>📐</span>
+                        <strong>Understand mathematics</strong>
+                        <small>Learn step by step</small>
+                    </button>
+                    <button class="suggestion" data-prompt="Generate beginner-friendly engineering study notes.">
+                        <span>📝</span>
+                        <strong>Generate study notes</strong>
+                        <small>Make structured notes</small>
+                    </button>
+                </div>
+            </div>
+
+            <div id="messages" class="messages"></div>
+            <div id="typingIndicator" class="typing hidden">
+                <span></span><span></span><span></span>
+                CampusOS AI is thinking...
+            </div>
+        </section>
+
+        <footer class="composer-section">
+            <div class="mode-label">ACTIVE MODE: <strong id="activeModeLabel">GENERAL ASSISTANT</strong></div>
+            <form id="chatForm" class="composer">
+                <textarea id="messageInput" rows="1" maxlength="4000"
+                    placeholder="Ask CampusOS AI anything..."></textarea>
+                <button type="submit" id="sendBtn" aria-label="Send message">➤</button>
+            </form>
+            <div class="composer-bottom">
+                <span>Powered by Google Gemini</span>
+                <span>AI can make mistakes. Verify important information.</span>
+            </div>
+        </footer>
+    </main>
+</div>
+
+<script src="student-ai.js"></script>
+</body>
+</html>
