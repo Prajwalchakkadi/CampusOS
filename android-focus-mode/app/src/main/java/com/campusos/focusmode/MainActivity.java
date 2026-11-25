@@ -33,8 +33,8 @@ import java.util.Set;
 public class MainActivity extends Activity {
 
     private final int green = Color.rgb(5, 150, 105);
-    private final int darkGreen = Color.rgb(6, 78, 59);
-    private final int textColor = Color.rgb(30, 41, 59);
+    private final int darkGreen = Color.rgb(167, 243, 208);
+    private final int textColor = Color.rgb(236, 253, 245);
 
     private static final String WHATSAPP = "com.whatsapp";
     private static final String YOUTUBE = "com.google.android.youtube";
@@ -57,7 +57,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         ScrollView scroll = new ScrollView(this);
-        scroll.setBackgroundColor(Color.rgb(236, 253, 245));
+        scroll.setBackgroundResource(R.drawable.bg_emerald_3d);
 
         LinearLayout page = new LinearLayout(this);
         page.setOrientation(LinearLayout.VERTICAL);
@@ -135,6 +135,9 @@ public class MainActivity extends Activity {
 
         Button accessibilityButton = new Button(this);
         accessibilityButton.setText("Open Accessibility Settings");
+        accessibilityButton.setTextColor(Color.rgb(167, 243, 208));
+        accessibilityButton.setBackgroundResource(R.drawable.bg_emerald_card);
+        accessibilityButton.setElevation(4);
         page.addView(accessibilityButton);
         accessibilityButton.setOnClickListener(v -> {
             startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
@@ -148,6 +151,8 @@ public class MainActivity extends Activity {
         timerText.setTypeface(null, Typeface.BOLD);
         timerText.setTextColor(darkGreen);
         timerText.setGravity(Gravity.CENTER);
+        timerText.setBackgroundResource(R.drawable.bg_emerald_card);
+        timerText.setMinHeight(150);
         timerText.setPadding(0, 18, 0, 10);
         page.addView(timerText);
 
@@ -161,9 +166,9 @@ public class MainActivity extends Activity {
         startButton = new Button(this);
         startButton.setText("Start Focus Session");
         startButton.setTextColor(Color.WHITE);
-        startButton.setBackgroundTintList(
-                android.content.res.ColorStateList.valueOf(green)
-        );
+        startButton.setBackgroundResource(R.drawable.bg_emerald_button);
+        startButton.setPadding(20, 14, 20, 14);
+        startButton.setElevation(8);
 
         LinearLayout.LayoutParams buttonParams =
                 new LinearLayout.LayoutParams(
@@ -176,6 +181,9 @@ public class MainActivity extends Activity {
 
         Button resetButton = new Button(this);
         resetButton.setText("Reset Session");
+        resetButton.setTextColor(Color.rgb(167, 243, 208));
+        resetButton.setBackgroundResource(R.drawable.bg_emerald_card);
+        resetButton.setElevation(4);
         page.addView(resetButton);
 
         startButton.setOnClickListener(v -> toggleTimer());
@@ -371,7 +379,10 @@ public class MainActivity extends Activity {
         checkBox.setTextSize(16);
         checkBox.setTextColor(textColor);
         checkBox.setChecked(selected);
-        checkBox.setPadding(8, 5, 8, 5);
+        checkBox.setTextColor(Color.rgb(236, 253, 245));
+        checkBox.setPadding(16, 12, 16, 12);
+        checkBox.setBackgroundResource(R.drawable.bg_emerald_card);
+        checkBox.setElevation(3);
         checkBox.setTag(packageName);
 
         selectableApps.add(checkBox);
