@@ -7,6 +7,9 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.View;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
@@ -17,13 +20,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 public class MainActivity extends Activity {
 
     private final int green = Color.rgb(5, 150, 105);
     private final int darkGreen = Color.rgb(6, 78, 59);
     private final int textColor = Color.rgb(30, 41, 59);
+
+    private static final String WHATSAPP = "com.whatsapp";
+    private static final String YOUTUBE = "com.google.android.youtube";
+    private static final String INSTAGRAM = "com.instagram.android";
+    private static final String FACEBOOK = "com.facebook.katana";
 
     private TextView timerText;
     private TextView statusText;
@@ -66,6 +78,7 @@ public class MainActivity extends Activity {
         addHeading(page, "Choose your focus duration");
 
         durationSpinner = new Spinner(this);
+
         String[] durations = {
                 "25 minutes", "45 minutes",
                 "50 minutes", "60 minutes",
@@ -77,26 +90,31 @@ public class MainActivity extends Activity {
                 android.R.layout.simple_spinner_item,
                 durations
         );
+
         adapter.setDropDownViewResource(
                 android.R.layout.simple_spinner_dropdown_item
         );
+
         durationSpinner.setAdapter(adapter);
         page.addView(durationSpinner);
 
         addHeading(page, "Apps that stay allowed");
-
-        addInfo(page, "WhatsApp  ✓");
-        addInfo(page, "YouTube  ✓");
+        addInfo(page, "WhatsApp  ✓  Always allowed");
+        addInfo(page, "YouTube  ✓  Always allowed");
         addInfo(page, "These apps cannot be selected for blocking.");
 
-        addHeading(page, "Choose apps to block");
+        addHeading(page, "Choose installed apps to block");
 
-        addApp(page, "Instagram", true);
-        addApp(page, "Facebook", true);
-        addApp(page, "Snapchat", false);
-        addApp(page, "TikTok", false);
-        addApp(page, "X", false);
-        addApp(page, "Games", false);
+        TextView explanation = new TextView(this);
+        explanation.setText(
+                "Select the apps you want to keep away during your study session."
+        );
+        explanation.setTextSize(14);
+        explanation.setTextColor(textColor);
+        explanation.setPadding(0, 0, 0, 10);
+        page.addView(explanation);
+
+        loadInstalledApps(page);
 
         addHeading(page, "Your focus session");
 
@@ -122,11 +140,13 @@ public class MainActivity extends Activity {
         startButton.setBackgroundTintList(
                 android.content.res.ColorStateList.valueOf(green)
         );
+
         LinearLayout.LayoutParams buttonParams =
                 new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT
                 );
+
         buttonParams.setMargins(0, 24, 0, 10);
         page.addView(startButton, buttonParams);
 
@@ -164,6 +184,68 @@ public class MainActivity extends Activity {
         );
     }
 
+    private void loadInstalledApps(LinearLayout page) {
+        PackageManager packageManager = getPackageManager();
+
+        Intent launcherIntent = new Intent(Intent.ACTION_MAIN);
+        launcherIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+        ArrayList<ResolveInfo> installedApps =
+                new ArrayList<>(
+                        packageManager.queryIntentActivities(launcherIntent, 0)
+                );
+
+        Collections.sort(
+                installedApps,
+                new Comparator<ResolveInfo>() {
+                    @Override
+                    public int compare(ResolveInfo first, ResolveInfo second) {
+                        String firstName = first.loadLabel(packageManager)
+                                .toString();
+                        String secondName = second.loadLabel(packageManager)
+                                .toString();
+
+                        return firstName.compareToIgnoreCase(secondName);
+                    }
+                }
+        );
+
+        Set<String> displayedPackages = new HashSet<>();
+        int displayedCount = 0;
+
+        for (ResolveInfo appInfo : installedApps) {
+            String packageName = appInfo.activityInfo.packageName;
+
+            if (packageName == null
+                    || packageName.equals(getPackageName())
+                    || packageName.equals(WHATSAPP)
+                    || packageName.equals(YOUTUBE)
+                    || displayedPackages.contains(packageName)) {
+                continue;
+            }
+
+            displayedPackages.add(packageName);
+
+            String appName = appInfo.loadLabel(packageManager).toString();
+
+            boolean selectedByDefault =
+                    packageName.equals(INSTAGRAM)
+                    || packageName.equals(FACEBOOK);
+
+            addApp(page, appName, packageName, selectedByDefault);
+            displayedCount++;
+        }
+
+        if (displayedCount == 0) {
+            addInfo(page, "No launchable apps were found.");
+        } else {
+            addInfo(
+                    page,
+                    displayedCount + " installed apps available for selection."
+            );
+        }
+    }
+
     private void addHeading(LinearLayout page, String text) {
         TextView heading = new TextView(this);
         heading.setText(text);
@@ -186,6 +268,7 @@ public class MainActivity extends Activity {
     private void addApp(
             LinearLayout page,
             String appName,
+            String packageName,
             boolean selected
     ) {
         CheckBox checkBox = new CheckBox(this);
@@ -194,6 +277,7 @@ public class MainActivity extends Activity {
         checkBox.setTextColor(textColor);
         checkBox.setChecked(selected);
         checkBox.setPadding(8, 5, 8, 5);
+        checkBox.setTag(packageName);
 
         selectableApps.add(checkBox);
         page.addView(checkBox);
@@ -232,6 +316,7 @@ public class MainActivity extends Activity {
                 updateTimerText();
                 startButton.setText("Start Focus Session");
                 statusText.setText("Focus session completed!");
+
                 Toast.makeText(
                         MainActivity.this,
                         "Well done! Your focus session is complete.",
