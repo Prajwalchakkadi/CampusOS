@@ -8,6 +8,10 @@ import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.View;
 import android.content.Intent;
+import android.content.ComponentName;
+import android.provider.Settings;
+import android.text.TextUtils;
+import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.widget.Button;
@@ -44,6 +48,7 @@ public class MainActivity extends Activity {
     private long remainingMillis = 25 * 60 * 1000L;
     private boolean running = false;
     private Spinner durationSpinner;
+    private TextView accessibilityStatus;
 
     private final ArrayList<CheckBox> selectableApps = new ArrayList<>();
 
@@ -116,6 +121,25 @@ public class MainActivity extends Activity {
 
         loadInstalledApps(page);
 
+        addHeading(page, "Enable app blocking");
+
+        addInfo(page,
+                "Accessibility permission is required to restrict selected apps. "
+                + "CampusOS checks foreground app changes only.");
+
+        accessibilityStatus = new TextView(this);
+        accessibilityStatus.setTextSize(14);
+        accessibilityStatus.setTextColor(textColor);
+        accessibilityStatus.setPadding(12, 8, 12, 8);
+        page.addView(accessibilityStatus);
+
+        Button accessibilityButton = new Button(this);
+        accessibilityButton.setText("Open Accessibility Settings");
+        page.addView(accessibilityButton);
+        accessibilityButton.setOnClickListener(v -> {
+            startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+        });
+
         addHeading(page, "Your focus session");
 
         timerText = new TextView(this);
@@ -182,6 +206,77 @@ public class MainActivity extends Activity {
                     ) {}
                 }
         );
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateAccessibilityStatus();
+    }
+
+    private boolean isAccessibilityServiceEnabled() {
+        String enabledServices = Settings.Secure.getString(
+                getContentResolver(),
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        );
+
+        if (TextUtils.isEmpty(enabledServices)) {
+            return false;
+        }
+
+        String expected = new ComponentName(
+                this,
+                FocusAccessibilityService.class
+        ).flattenToString();
+
+        TextUtils.SimpleStringSplitter splitter =
+                new TextUtils.SimpleStringSplitter(':');
+        splitter.setString(enabledServices);
+
+        for (String service : splitter) {
+            if (expected.equalsIgnoreCase(service)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void updateAccessibilityStatus() {
+        if (accessibilityStatus == null) {
+            return;
+        }
+
+        if (isAccessibilityServiceEnabled()) {
+            accessibilityStatus.setText("App blocking permission: ENABLED");
+        } else {
+            accessibilityStatus.setText("App blocking permission: NOT ENABLED");
+        }
+    }
+
+    private void saveFocusSession(boolean active) {
+        Set<String> blockedPackages = new HashSet<>();
+
+        for (CheckBox checkBox : selectableApps) {
+            if (checkBox.isChecked() && checkBox.getTag() instanceof String) {
+                String packageName = (String) checkBox.getTag();
+
+                if (!packageName.equals(WHATSAPP)
+                        && !packageName.equals(YOUTUBE)) {
+                    blockedPackages.add(packageName);
+                }
+            }
+        }
+
+        getSharedPreferences("focus_mode", MODE_PRIVATE)
+                .edit()
+                .putStringSet("blocked_packages", blockedPackages)
+                .putLong(
+                        "focus_end_time",
+                        active ? System.currentTimeMillis() + remainingMillis : 0
+                )
+                .putBoolean("focus_active", active)
+                .apply();
     }
 
     private void loadInstalledApps(LinearLayout page) {
@@ -298,7 +393,26 @@ public class MainActivity extends Activity {
             return;
         }
 
+        if (!isAccessibilityServiceEnabled()) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Enable app blocking")
+                    .setMessage(
+                            "Please enable CampusOS Focus Mode in Android "
+                            + "Accessibility Settings. This permission is "
+                            + "needed to restrict only your selected apps."
+                    )
+                    .setPositiveButton("Open Settings", (dialog, which) -> {
+                        startActivity(
+                                new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                        );
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+            return;
+        }
+
         running = true;
+        saveFocusSession(true);
         startButton.setText("Pause Focus Session");
         statusText.setText("Focus session in progress.");
 
@@ -313,6 +427,7 @@ public class MainActivity extends Activity {
             public void onFinish() {
                 remainingMillis = 0;
                 running = false;
+                saveFocusSession(false);
                 updateTimerText();
                 startButton.setText("Start Focus Session");
                 statusText.setText("Focus session completed!");
@@ -332,6 +447,7 @@ public class MainActivity extends Activity {
         }
 
         running = false;
+        saveFocusSession(false);
         startButton.setText("Resume Focus Session");
         statusText.setText("Session paused.");
     }
@@ -342,6 +458,7 @@ public class MainActivity extends Activity {
         }
 
         running = false;
+        saveFocusSession(false);
 
         int minutes = Integer.parseInt(
                 durationSpinner.getSelectedItem().toString()

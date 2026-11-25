@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">CampusOS Focus Mode</string>
+    <string name="focus_accessibility_description">CampusOS uses foreground app detection during a student-started focus session to restrict only the apps selected by the student. It does not read messages, passwords or typed text. WhatsApp and YouTube remain allowed.</string>
 </resources>
