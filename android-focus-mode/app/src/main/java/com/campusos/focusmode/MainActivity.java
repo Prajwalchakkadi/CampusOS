@@ -3,6 +3,8 @@ package com.campusos.focusmode;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Looper;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.Gravity;
@@ -22,6 +24,10 @@ import android.widget.Spinner;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.EditText;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,6 +55,20 @@ public class MainActivity extends Activity {
     private boolean running = false;
     private Spinner durationSpinner;
     private TextView accessibilityStatus;
+    private EditText pairingCodeInput;
+    private TextView pairingStatus;
+    private Button pairButton;
+    private String deviceToken = null;
+    private String currentSessionId = null;
+    private long currentSessionDurationMillis = 0;
+    private boolean networkBusy = false;
+
+
+    private final ExecutorService networkExecutor =
+            Executors.newSingleThreadExecutor();
+
+    private final Handler mainHandler =
+            new Handler(Looper.getMainLooper());
 
     private final ArrayList<CheckBox> selectableApps = new ArrayList<>();
 
@@ -143,6 +163,45 @@ public class MainActivity extends Activity {
             startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
         });
 
+        addHeading(page, "Connect to CampusOS");
+
+        addInfo(page, "Generate a one-time pairing code from your CampusOS Student Dashboard and enter it here.");
+
+        pairingCodeInput = new EditText(this);
+        pairingCodeInput.setSingleLine(true);
+        pairingCodeInput.setHint("Enter 16-character pairing code");
+        pairingCodeInput.setTextColor(textColor);
+        pairingCodeInput.setHintTextColor(Color.LTGRAY);
+        pairingCodeInput.setFilters(
+                new android.text.InputFilter[]{
+                    new android.text.InputFilter.LengthFilter(16)
+                }
+        );
+        pairingCodeInput.setInputType(
+                android.text.InputType.TYPE_CLASS_TEXT
+                | android.text.InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
+                | android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+        );
+        pairingCodeInput.setPadding(16, 14, 16, 14);
+        pairingCodeInput.setBackgroundResource(R.drawable.bg_emerald_card);
+        page.addView(pairingCodeInput);
+
+        pairButton = new Button(this);
+        pairButton.setText("Pair This Android Device");
+        pairButton.setTextColor(Color.WHITE);
+        pairButton.setBackgroundResource(R.drawable.bg_emerald_button);
+        page.addView(pairButton);
+
+        pairingStatus = new TextView(this);
+        pairingStatus.setTextColor(textColor);
+        pairingStatus.setTextSize(14);
+        pairingStatus.setPadding(8, 10, 8, 10);
+        pairingStatus.setText("Checking device connection...");
+        page.addView(pairingStatus);
+
+        pairButton.setOnClickListener(v -> pairDevice());
+        loadPairingStatus();
+
         addHeading(page, "Your focus session");
 
         timerText = new TextView(this);
@@ -220,6 +279,83 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         updateAccessibilityStatus();
+    }
+
+    private void loadPairingStatus() {
+        networkExecutor.execute(() -> {
+            try {
+                String savedToken = SecureTokenStore.read(MainActivity.this);
+
+                mainHandler.post(() -> {
+                    deviceToken = savedToken;
+
+                    if (savedToken != null) {
+                        pairingStatus.setText("Device paired successfully with CampusOS.");
+                        pairButton.setText("Device Paired");
+                    } else {
+                        pairingStatus.setText("This Android device is not paired yet.");
+                    }
+                });
+            } catch (Exception error) {
+                mainHandler.post(() ->
+                    pairingStatus.setText("Unable to read saved pairing. Please pair again.")
+                );
+            }
+        });
+    }
+
+    private void pairDevice() {
+        String code = pairingCodeInput.getText()
+                .toString().trim().toUpperCase(Locale.ROOT);
+
+        if (!code.matches("[A-F0-9]{16}")) {
+            pairingCodeInput.setError("Enter the valid 16-character pairing code.");
+            return;
+        }
+
+        pairButton.setEnabled(false);
+        pairButton.setText("Pairing...");
+        pairingStatus.setText("Connecting to CampusOS...");
+
+        networkExecutor.execute(() -> {
+            try {
+                JSONObject result = FocusApiClient.exchangePairingCode(code);
+                String token = result.optString("deviceToken", "");
+
+                if (!result.optBoolean("success")
+                        || !token.matches("[a-fA-F0-9]{64}")) {
+                    throw new Exception("Invalid device credential received.");
+                }
+
+                SecureTokenStore.save(MainActivity.this, token);
+
+                mainHandler.post(() -> {
+                    deviceToken = token;
+                    pairingStatus.setText("Device paired successfully with CampusOS.");
+                    pairingCodeInput.setText("");
+                    pairButton.setText("Device Paired");
+                    pairButton.setEnabled(true);
+
+                    Toast.makeText(
+                            MainActivity.this,
+                            "CampusOS device pairing successful!",
+                            Toast.LENGTH_LONG
+                    ).show();
+                });
+
+            } catch (Exception error) {
+                String message = error.getMessage();
+
+                mainHandler.post(() -> {
+                    pairingStatus.setText(
+                            "Pairing failed: " +
+                            (message == null ? "Please try again." : message)
+                    );
+                    pairButton.setText("Pair This Android Device");
+                    pairButton.setEnabled(true);
+                });
+            }
+        });
     }
 
     private boolean isAccessibilityServiceEnabled() {
@@ -389,9 +525,33 @@ public class MainActivity extends Activity {
         page.addView(checkBox);
     }
 
+    private org.json.JSONArray buildBlockedApps() {
+        org.json.JSONArray apps = new org.json.JSONArray();
+
+        for (CheckBox checkBox : selectableApps) {
+            if (checkBox.isChecked()
+                    && checkBox.getTag() instanceof String) {
+
+                String packageName = (String) checkBox.getTag();
+
+                if (!packageName.equals(WHATSAPP)
+                        && !packageName.equals(YOUTUBE)
+                        && !packageName.equals(getPackageName())) {
+                    apps.put(packageName);
+                }
+            }
+        }
+
+        return apps;
+    }
+
     private void toggleTimer() {
         if (running) {
             pauseTimer();
+            return;
+        }
+
+        if (networkBusy) {
             return;
         }
 
@@ -409,8 +569,8 @@ public class MainActivity extends Activity {
                     .setTitle("Enable app blocking")
                     .setMessage(
                             "Please enable CampusOS Focus Mode in Android "
-                            + "Accessibility Settings. This permission is "
-                            + "needed to restrict only your selected apps."
+                                    + "Accessibility Settings. This permission is "
+                                    + "needed to restrict only your selected apps."
                     )
                     .setPositiveButton("Open Settings", (dialog, which) -> {
                         startActivity(
@@ -422,10 +582,80 @@ public class MainActivity extends Activity {
             return;
         }
 
+        if (deviceToken == null || deviceToken.isEmpty()) {
+            Toast.makeText(
+                    this,
+                    "Please pair this device with CampusOS first.",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            pairingStatus.setText("Pair this device before starting a session.");
+            return;
+        }
+
+        final long requestedDuration = remainingMillis;
+        final int durationMinutes = Math.max(
+                1,
+                (int) Math.ceil(requestedDuration / 60000.0)
+        );
+
+        final String token = deviceToken;
+        final org.json.JSONArray blockedApps = buildBlockedApps();
+
+        networkBusy = true;
+        startButton.setEnabled(false);
+        statusText.setText("Synchronizing focus session with CampusOS...");
+
+        networkExecutor.execute(() -> {
+            try {
+                JSONObject result = FocusApiClient.createSession(
+                        token,
+                        durationMinutes,
+                        blockedApps
+                );
+
+                String sessionId = result.optString("sessionId", "");
+
+                if (!result.optBoolean("success")
+                        || !sessionId.matches("[a-zA-Z0-9]{10,40}")) {
+                    throw new Exception("Invalid session response from CampusOS.");
+                }
+
+                mainHandler.post(() -> {
+                    networkBusy = false;
+                    startButton.setEnabled(true);
+
+                    currentSessionId = sessionId;
+                    currentSessionDurationMillis = requestedDuration;
+
+                    startLocalTimer();
+                });
+
+            } catch (Exception error) {
+                String message = error.getMessage();
+
+                mainHandler.post(() -> {
+                    networkBusy = false;
+                    startButton.setEnabled(true);
+                    statusText.setText("Cloud sync failed. Session not started.");
+
+                    Toast.makeText(
+                            MainActivity.this,
+                            "Unable to start: "
+                                    + (message == null ? "Please try again." : message),
+                            Toast.LENGTH_LONG
+                    ).show();
+                });
+            }
+        });
+    }
+
+    private void startLocalTimer() {
         running = true;
         saveFocusSession(true);
+
         startButton.setText("Pause Focus Session");
-        statusText.setText("Focus session in progress.");
+        statusText.setText("Focus session active and synchronized.");
 
         countdown = new CountDownTimer(remainingMillis, 1000) {
             @Override
@@ -438,10 +668,23 @@ public class MainActivity extends Activity {
             public void onFinish() {
                 remainingMillis = 0;
                 running = false;
+
                 saveFocusSession(false);
                 updateTimerText();
+
                 startButton.setText("Start Focus Session");
                 statusText.setText("Focus session completed!");
+
+                String finishedSessionId = currentSessionId;
+                currentSessionId = null;
+
+                if (finishedSessionId != null) {
+                    syncCloudSessionEnd(
+                            finishedSessionId,
+                            "completed",
+                            (int) (currentSessionDurationMillis / 1000L)
+                    );
+                }
 
                 Toast.makeText(
                         MainActivity.this,
@@ -452,20 +695,100 @@ public class MainActivity extends Activity {
         }.start();
     }
 
+    private void syncCloudSessionEnd(
+            String sessionId,
+            String finalStatus,
+            int elapsedSeconds
+    ) {
+        String token = deviceToken;
+
+        if (token == null || token.isEmpty()) {
+            return;
+        }
+
+        networkExecutor.execute(() -> {
+            try {
+                FocusApiClient.updateSession(
+                        token,
+                        sessionId,
+                        finalStatus,
+                        elapsedSeconds
+                );
+            } catch (Exception error) {
+                String message = error.getMessage();
+
+                mainHandler.post(() -> Toast.makeText(
+                        MainActivity.this,
+                        "Cloud history update failed: "
+                                + (message == null ? "Please check your connection." : message),
+                        Toast.LENGTH_LONG
+                ).show());
+            }
+        });
+    }
+
     private void pauseTimer() {
+        if (!running) {
+            return;
+        }
+
         if (countdown != null) {
             countdown.cancel();
         }
 
         running = false;
         saveFocusSession(false);
+
+        int elapsedSeconds = (int) Math.max(
+                0,
+                (currentSessionDurationMillis - remainingMillis) / 1000L
+        );
+
+        String pausedSessionId = currentSessionId;
+        currentSessionId = null;
+
+        if (pausedSessionId != null) {
+            syncCloudSessionEnd(
+                    pausedSessionId,
+                    "paused",
+                    elapsedSeconds
+            );
+        }
+
         startButton.setText("Resume Focus Session");
         statusText.setText("Session paused.");
     }
 
     private void resetTimer() {
+        if (networkBusy) {
+            Toast.makeText(
+                    this,
+                    "Please wait for CampusOS synchronization to finish.",
+                    Toast.LENGTH_SHORT
+            ).show();
+            return;
+        }
+
         if (countdown != null) {
             countdown.cancel();
+        }
+
+        if (running) {
+            int elapsedSeconds = (int) Math.max(
+                    0,
+                    (currentSessionDurationMillis - remainingMillis) / 1000L
+            );
+
+            String cancelledSessionId = currentSessionId;
+            currentSessionId = null;
+
+            if (cancelledSessionId != null) {
+                syncCloudSessionEnd(
+                        cancelledSessionId,
+                        "cancelled",
+                        elapsedSeconds
+                );
+            }
         }
 
         running = false;
@@ -477,6 +800,8 @@ public class MainActivity extends Activity {
         );
 
         remainingMillis = minutes * 60 * 1000L;
+        currentSessionDurationMillis = 0;
+
         startButton.setText("Start Focus Session");
         statusText.setText("Ready when you are.");
         updateTimerText();
