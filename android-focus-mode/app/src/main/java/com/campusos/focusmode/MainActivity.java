@@ -159,9 +159,7 @@ public class MainActivity extends Activity {
         accessibilityButton.setBackgroundResource(R.drawable.bg_emerald_card);
         accessibilityButton.setElevation(4);
         page.addView(accessibilityButton);
-        accessibilityButton.setOnClickListener(v -> {
-            startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
-        });
+        accessibilityButton.setOnClickListener(v -> showAccessibilityConsent());
 
         addHeading(page, "Connect to CampusOS");
 
@@ -356,6 +354,86 @@ public class MainActivity extends Activity {
                 });
             }
         });
+    }
+
+    private boolean hasAccessibilityConsent() {
+        return getSharedPreferences("focus_mode_privacy", MODE_PRIVATE)
+                .getBoolean("accessibility_consent", false);
+    }
+
+    private void showAccessibilityConsent() {
+        new AlertDialog.Builder(this)
+                .setTitle("CampusOS Accessibility Disclosure")
+                .setMessage(
+                        "CampusOS Focus Mode uses Android Accessibility access "
+                        + "to detect changes in the foreground app. It checks "
+                        + "the app package name against the apps you selected "
+                        + "for blocking. If a selected blocked app opens during "
+                        + "an active session, CampusOS sends you to the Home screen.\n\n"
+                        + "During cloud session creation, selected blocked-app "
+                        + "package identifiers are also sent to the CampusOS backend "
+                        + "for session synchronization.\n\n"
+                        + "CampusOS does not use this service to read screen text, "
+                        + "messages or passwords, or to record your screen.\n\n"
+                        + "You can decline. App blocking will remain unavailable "
+                        + "unless you give consent and enable the service in Android Settings."
+                )
+                .setPositiveButton("Agree and Continue", (dialog, which) -> {
+                    getSharedPreferences("focus_mode_privacy", MODE_PRIVATE)
+                            .edit()
+                            .putBoolean("accessibility_consent", true)
+                            .apply();
+
+                    startActivity(
+                            new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                    );
+                })
+                .setNegativeButton("Decline", (dialog, which) -> {
+                    getSharedPreferences("focus_mode_privacy", MODE_PRIVATE)
+                            .edit()
+                            .putBoolean("accessibility_consent", false)
+                            .apply();
+
+                    stopForConsentWithdrawal();
+
+                    Toast.makeText(
+                            this,
+                            "Accessibility consent declined. App blocking is unavailable.",
+                            Toast.LENGTH_LONG
+                    ).show();
+                })
+                .setCancelable(true)
+                .show();
+    }
+
+    private void stopForConsentWithdrawal() {
+        if (countdown != null) {
+            countdown.cancel();
+            countdown = null;
+        }
+
+        running = false;
+        saveFocusSession(false);
+
+        int elapsedSeconds = (int) Math.max(
+                0,
+                (currentSessionDurationMillis - remainingMillis) / 1000L
+        );
+
+        String stoppedSessionId = currentSessionId;
+        currentSessionId = null;
+
+        if (stoppedSessionId != null) {
+            syncCloudSessionEnd(
+                    stoppedSessionId,
+                    "cancelled",
+                    elapsedSeconds
+            );
+        }
+
+        startButton.setText("Start Focus Session");
+        statusText.setText("Session stopped. Accessibility consent withdrawn.");
+        updateTimerText();
     }
 
     private boolean isAccessibilityServiceEnabled() {
@@ -564,14 +642,15 @@ public class MainActivity extends Activity {
             return;
         }
 
+        if (!hasAccessibilityConsent()) {
+            showAccessibilityConsent();
+            return;
+        }
+
         if (!isAccessibilityServiceEnabled()) {
             new AlertDialog.Builder(this)
                     .setTitle("Enable app blocking")
-                    .setMessage(
-                            "Please enable CampusOS Focus Mode in Android "
-                                    + "Accessibility Settings. This permission is "
-                                    + "needed to restrict only your selected apps."
-                    )
+                    .setMessage("Please enable CampusOS Focus Mode in Android Accessibility Settings.")
                     .setPositiveButton("Open Settings", (dialog, which) -> {
                         startActivity(
                                 new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
@@ -624,6 +703,13 @@ public class MainActivity extends Activity {
                 mainHandler.post(() -> {
                     networkBusy = false;
                     startButton.setEnabled(true);
+
+                    if (!hasAccessibilityConsent()) {
+                        currentSessionId = null;
+                        syncCloudSessionEnd(sessionId, "cancelled", 0);
+                        statusText.setText("Session not started. Accessibility consent is required.");
+                        return;
+                    }
 
                     currentSessionId = sessionId;
                     currentSessionDurationMillis = requestedDuration;

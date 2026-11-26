@@ -38,6 +38,13 @@ public class FocusAccessibilityService extends AccessibilityService {
         android.content.SharedPreferences prefs =
                 getSharedPreferences(PREFS, MODE_PRIVATE);
 
+        android.content.SharedPreferences privacyPrefs =
+                getSharedPreferences("focus_mode_privacy", MODE_PRIVATE);
+
+        if (!privacyPrefs.getBoolean("accessibility_consent", false)) {
+            return;
+        }
+
         if (!prefs.getBoolean("focus_active", false)) {
             return;
         }
